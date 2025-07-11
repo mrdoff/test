@@ -3,238 +3,1868 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Turneringsräknare</title>
-    <!-- Tailwind CSS CDN for basic styling -->
+    <title>PokerJournalen</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN for graphing -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* Custom styles for better aesthetics and specific overrides */
         body {
-            font-family: 'Inter', sans-serif; /* Using Inter font as per instructions */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background-color: #f0f2f5; /* Light grey background */
-            margin: 0;
-            padding: 20px; /* Add some padding for smaller screens */
-            box-sizing: border-box; /* Include padding in element's total width and height */
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
         }
-
         .container {
-            display: flex;
-            flex-direction: column; /* Always stack vertically as there's only one section */
-            gap: 24px; /* Gap between sections (though only one now) */
-            padding: 32px;
+            max-width: 960px;
+            margin: 2rem auto;
+            padding: 1.5rem;
             background-color: #ffffff;
-            border-radius: 16px; /* More rounded corners */
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); /* Softer, larger shadow */
-            max-width: 500px; /* Max width for the single counter container */
-            width: 100%; /* Full width on smaller screens */
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         }
-
-        .counter-section {
-            text-align: center;
-            padding: 24px;
-            border: 1px solid #e0e0e0; /* Lighter border */
-            border-radius: 12px; /* Rounded corners for sections */
-            flex: 1; /* Distribute space equally */
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between; /* Space out content */
-            background-color: #fdfdfd; /* Slightly off-white for sections */
+        .card {
+            background-color: #f9fafb;
+            border-radius: 10px;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
         }
-
-        h2 {
-            color: #2c3e50; /* Darker title color */
-            margin-bottom: 20px;
-            font-size: 1.8em; /* Slightly larger heading */
-            font-weight: 600; /* Semi-bold */
+        .input-field {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+            background-color: #ffffff;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03);
+            transition: border-color 0.2s;
         }
-
-        .counter-display {
-            font-size: 4.5em; /* Even larger counter numbers */
-            font-weight: 700; /* Bold */
-            margin-bottom: 24px;
-            color: #3498db; /* A vibrant blue */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100px; /* Ensure consistent height */
-        }
-
-        #tournamentCount {
-            color: #3498db;
-        }
-
-        /* Styling for the main increment button */
-        #incrementTournament {
-            width: 150px; /* Fixed width for a perfect circle */
-            height: 150px; /* Fixed height for a perfect circle */
-            padding: 0; /* Remove padding as width/height define size */
-            font-size: 2em; /* Larger font for the main button */
-            border-radius: 50%; /* Make it perfectly round */
-            background-color: #3498db; /* Blue */
-            color: white;
-            display: flex; /* Use flex to center text vertically and horizontally */
-            justify-content: center;
-            align-items: center;
-            margin: 20px auto; /* Center the button horizontally with more margin */
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2); /* More prominent shadow */
-        }
-
-        #incrementTournament:hover {
-            transform: translateY(-3px); /* More pronounced lift effect */
-            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.25); /* Enhanced shadow on hover */
-        }
-
-        #incrementTournament:active {
-            transform: translateY(0); /* Press effect */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-        }
-
-        .reset-button {
-            background-color: #95a5a6; /* Grey for reset */
-            color: white;
-            padding: 12px 24px; /* Standard button padding */
-            font-size: 1.1em; /* Standard button font size */
-            border-radius: 8px; /* Standard button border-radius */
-            margin: 8px auto; /* Center the reset button */
-            width: fit-content; /* Adjust width to content */
-        }
-
-        .manual-adjust {
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-            gap: 10px; /* Gap between input and button */
-            flex-wrap: wrap; /* Allow wrapping on small screens */
-        }
-
-        .manual-adjust input {
-            padding: 10px;
-            font-size: 1.1em;
-            border: 1px solid #cccccc;
-            border-radius: 6px;
-            width: 120px; /* Fixed width for input */
-            text-align: center;
-            transition: border-color 0.3s ease;
-        }
-
-        .manual-adjust input:focus {
-            border-color: #3498db; /* Highlight on focus */
+        .input-field:focus {
             outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
         }
-
-        /* Responsive adjustments for smaller screens */
-        @media (max-width: 600px) {
-            .counter-display {
-                font-size: 3.5em;
-            }
-            #incrementTournament {
-                width: 120px; /* Smaller round button on small screens */
-                height: 120px;
-                font-size: 1.8em;
-            }
-            .manual-adjust {
-                flex-direction: column;
-                align-items: center;
-            }
-            .manual-adjust input {
-                width: 80%; /* Make input wider on small screens */
-                max-width: 200px;
-            }
-            .reset-button {
-                font-size: 1em;
-                padding: 10px 20px;
-            }
+        .input-field:disabled {
+            background-color: #e5e7eb;
+            cursor: not-allowed;
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary {
+            background-color: #3b82f6;
+            color: #ffffff;
+        }
+        .btn-primary:hover {
+            background-color: #2563eb;
+            transform: translateY(-1px);
+        }
+        .btn-danger {
+            background-color: #ef4444;
+            color: #ffffff;
+        }
+        .btn-danger:hover {
+            background-color: #dc2626;
+            transform: translateY(-1px);
+        }
+        .btn-secondary {
+            background-color: #6b7280;
+            color: #ffffff;
+        }
+        .btn-secondary:hover {
+            background-color: #4b5563;
+            transform: translateY(-1px);
+        }
+        .btn-small {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.875rem;
+        }
+        .table-header th {
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+            color: #4b5563;
+            background-color: #e5e7eb;
+            border-bottom: 1px solid #d1d5db;
+        }
+        .table-row td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .table-row:last-child td {
+            border-bottom: none;
+        }
+        .hidden-view {
+            display: none;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Tournament Counter Section -->
-        <div class="counter-section">
-            <h2>Turneringsräknare</h2>
-            <div class="counter-display">
-                <span id="tournamentCount">0</span>
+        <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">PokerJournalen</h1>
+        <p class="text-center text-sm text-gray-600 mb-6">Din användar-ID: <span id="userIdDisplay" class="font-mono text-blue-600">Laddar...</span></p>
+
+        <!-- Navigation -->
+        <div class="flex justify-center gap-4 mb-6">
+            <button id="sessionTrackerNavBtn" class="btn btn-primary">Sessionsöversikt</button>
+            <button id="historyAndGraphsNavBtn" class="btn btn-secondary">Historik och Grafer</button>
+            <button id="settingsNavBtn" class="btn btn-secondary">Inställningar</button>
+        </div>
+
+        <!-- Session Tracker View -->
+        <div id="sessionTrackerView">
+            <!-- Ongoing Session Management -->
+            <div class="card">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-700">Pågående Session</h2>
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4">
+                    <button id="toggleSessionBtn" class="btn btn-primary w-full sm:w-auto rounded-lg">Starta Session</button>
+                    <p id="sessionTimerDisplay" class="text-2xl font-bold text-gray-800 flex-grow text-center sm:text-right">00:00:00</p>
+                </div>
             </div>
-            <button id="incrementTournament">Lägg till 1</button>
-            <div class="manual-adjust">
-                <input type="number" id="manualTournamentInput" placeholder="Justera manuellt" class="rounded-md">
-                <button id="setTournamentCount">Sätt värde</button>
+
+            <!-- Add New Session Form -->
+            <div class="card">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-700">Lägg till Ny Session</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label for="sessionStartTime" class="block text-sm font-medium text-gray-700 mb-1">Starttid:</label>
+                        <input type="datetime-local" id="sessionStartTime" class="input-field rounded-lg" />
+                    </div>
+                    <div>
+                        <label for="sessionEndTime" class="block text-sm font-medium text-gray-700 mb-1">Sluttid:</label>
+                        <input type="datetime-local" id="sessionEndTime" class="input-field rounded-lg" />
+                    </div>
+                    <div class="md:col-span-2 flex flex-col sm:flex-row gap-2 items-end">
+                        <div class="flex-grow">
+                            <label for="sessionClientSelectAdd" class="block text-sm font-medium text-gray-700 mb-1">Välj Pokerklient att lägga till:</label>
+                            <select id="sessionClientSelectAdd" class="input-field rounded-lg w-full">
+                                <option value="">Välj klient</option>
+                                <option value="all_clients">Lägg till alla klienter</option>
+                                <!-- Klienter laddas dynamiskt här -->
+                            </select>
+                        </div>
+                        <button id="addClientToSessionBtn" class="btn btn-secondary rounded-lg w-full sm:w-auto mt-2 sm:mt-0">Lägg till vald klient</button>
+                    </div>
+                    <div id="dynamicClientBalanceInputs" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 md:col-span-2">
+                        <!-- Dynamiska saldo-fält för valda klienter kommer att infogas här -->
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="sessionNotes" class="block text-sm font-medium text-gray-700 mb-1">Anteckningar:</label>
+                        <textarea id="sessionNotes" rows="3" placeholder="Anteckningar om sessionen..." class="input-field rounded-lg"></textarea>
+                    </div>
+                </div>
+                <button id="addSessionBtn" class="btn btn-primary w-full rounded-lg">Lägg till Session</button>
             </div>
-            <button id="resetTournament" class="reset-button">Återställ</button>
+
+            <!-- Statistics Overview -->
+            <div class="card">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-700">Statistiköversikt</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-center">
+                    <div class="bg-blue-50 p-4 rounded-lg shadow-sm">
+                        <p class="text-sm font-medium text-gray-600">Total Vinst/Förlust</p>
+                        <p id="totalWinLoss" class="text-3xl font-bold text-blue-700 mt-1">0.00 kr</p>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-lg shadow-sm">
+                        <p class="text-sm font-medium text-gray-600">Antal Sessioner</p>
+                        <p id="totalSessions" class="text-3xl font-bold text-green-700 mt-1">0</p>
+                    </div>
+                    <div class="bg-blue-50 p-4 rounded-lg shadow-sm col-span-full">
+                        <p class="text-sm font-medium text-gray-600">Nuvarande Bankrulle</p>
+                        <p id="totalBankrollDisplaySessionView" class="text-3xl font-bold text-blue-700 mt-1">0.00 kr</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Latest Sessions List -->
+            <div class="card">
+                <h2 class="2xl font-semibold mb-4 text-gray-700">Dina Senaste Sessioner</h2>
+                <div class="overflow-x-auto rounded-lg shadow-md">
+                    <table class="min-w-full bg-white rounded-lg">
+                        <thead>
+                            <tr class="table-header">
+                                <th>Datum</th>
+                                <th>Klienter (Vinst/Förlust)</th>
+                                <th>Total Vinst/Förlust</th>
+                                <th>Anteckningar</th>
+                                <th>Åtgärder</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sessionListTableBody">
+                            <!-- Sessioner kommer att laddas här -->
+                            <tr>
+                                <td colspan="5" class="text-center py-4 text-gray-500" id="noSessionsMessage">Inga sessioner tillagda ännu.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- History and Graphs View -->
+        <div id="historyAndGraphsView" class="hidden-view">
+            <div class="card">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-700">Historik och Grafer</h2>
+                <div class="flex justify-center gap-4 mb-6">
+                    <button id="periodSelectWeek" class="btn btn-secondary btn-small">Vecka</button>
+                    <button id="periodSelectMonth" class="btn btn-primary btn-small">Månad</button>
+                    <button id="periodSelectYear" class="btn btn-secondary btn-small">År</button>
+                </div>
+
+                <div class="flex justify-between items-center mb-4">
+                    <button id="prevPeriodBtn" class="btn btn-secondary btn-small">&lt; Föregående</button>
+                    <p id="historyPeriodDisplay" class="text-xl font-bold text-gray-800">Nuvarande Månad</p>
+                    <button id="nextPeriodBtn" class="btn btn-secondary btn-small">Nästa &gt;</button>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-center mb-6">
+                    <div class="bg-blue-50 p-4 rounded-lg shadow-sm">
+                        <p class="text-sm font-medium text-gray-600">Antal Sessioner</p>
+                        <p id="historyTotalSessions" class="text-2xl font-bold text-green-700 mt-1">0</p>
+                    </div>
+                    <div class="bg-blue-50 p-4 rounded-lg shadow-sm">
+                        <p class="text-sm font-medium text-gray-600">Spelade Timmar</p>
+                        <p id="historyTotalHours" class="text-2xl font-bold text-blue-700 mt-1">0.0 timmar</p>
+                    </div>
+                    <div class="bg-blue-50 p-4 rounded-lg shadow-sm">
+                        <p class="text-sm font-medium text-gray-600">Resultat</p>
+                        <p id="historyTotalWinLoss" class="text-3xl font-bold text-blue-700 mt-1">0.00 kr</p>
+                    </div>
+                    <div class="bg-blue-50 p-4 rounded-lg shadow-sm md:col-span-3">
+                        <p class="text-sm font-medium text-gray-600">Beräknad Timlön</p>
+                        <p id="historyCalculatedHourlyWage" class="text-2xl font-bold text-blue-700 mt-1">0.00 kr/timme</p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-lg shadow-md">
+                    <canvas id="winLossChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings View -->
+        <div id="settingsView" class="hidden-view">
+            <!-- Poker Client Management -->
+            <div class="card">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-700">Hantera Pokerklienter</h2>
+                <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                    <input type="text" id="newClientName" placeholder="Ny klientnamn (t.ex. PokerStars)" class="input-field flex-grow rounded-lg" />
+                    <select id="newClientCurrency" class="input-field w-full sm:w-auto rounded-lg">
+                        <option value="USD">USD ($)</option>
+                        <option value="EUR">EUR (€)</option>
+                        <option value="SEK">SEK (kr)</option>
+                    </select>
+                    <input type="number" id="newClientBalance" placeholder="Nuvarande Saldo (t.ex. 500)" class="input-field flex-grow rounded-lg" />
+                    <button id="addClientBtn" class="btn btn-primary rounded-lg">Lägg till Klient</button>
+                </div>
+                <div id="clientList" class="grid grid-cols-1 gap-3">
+                    <!-- Klienter kommer att laddas här -->
+                    <p id="noClientsMessage" class="text-gray-500 col-span-full">Inga klienter tillagda ännu.</p>
+                </div>
+            </div>
+
+            <!-- Total Bankroll Management (Moved to Settings) -->
+            <div class="card">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-700">Hantera Total Bankrulle</h2>
+                <div class="flex flex-col sm:flex-row gap-4 items-center">
+                    <p class="text-xl font-bold text-gray-800">Nuvarande Bankrulle: <span id="totalBankrollDisplay" class="text-blue-700">0.00 kr</span></p>
+                    <input type="number" id="manualBankrollInput" placeholder="Ange manuell bankrulle" class="input-field flex-grow rounded-lg" />
+                    <button id="updateManualBankrollBtn" class="btn btn-secondary rounded-lg">Uppdatera Bankrulle</button>
+                </div>
+            </div>
+
+            <!-- Display Currency Setting -->
+            <div class="card">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-700">Visningsvaluta</h2>
+                <div class="mb-4">
+                    <label for="displayCurrency" class="block text-sm font-medium text-gray-700 mb-1">Visa statistik i:</label>
+                    <select id="displayCurrency" class="input-field w-full sm:w-auto rounded-lg">
+                        <option value="USD">USD ($)</option>
+                        <option value="EUR">EUR (€)</option>
+                        <option value="SEK" selected>SEK (kr)</option>
+                    </select>
+                </div>
+            </div>
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Tournament Counter Logic
-            const tournamentCountElement = document.getElementById('tournamentCount');
-            const incrementTournamentButton = document.getElementById('incrementTournament');
-            const manualTournamentInput = document.getElementById('manualTournamentInput');
-            const setTournamentCountButton = document.getElementById('setTournamentCount');
-            const resetTournamentButton = document.getElementById('resetTournament');
+    <!-- Custom Confirmation Modal -->
+    <div id="customConfirmModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full">
+            <p id="confirmMessage" class="text-lg font-semibold mb-4 text-gray-800"></p>
+            <div class="flex justify-end gap-3">
+                <button id="confirmCancelBtn" class="btn btn-secondary">Avbryt</button>
+                <button id="confirmOkBtn" class="btn btn-primary">OK</button>
+            </div>
+        </div>
+    </div>
 
-            let tournamentCount = 0;
+    <!-- End Session Confirmation Modal (for Add Session button) -->
+    <div id="endSessionConfirmModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full">
+            <h3 class="text-xl font-semibold mb-4 text-gray-800">Avsluta pågående session?</h3>
+            <p class="text-gray-700 mb-4">En pågående session är aktiv. Vill du avsluta den och spara den nu?</p>
+            <p class="text-700 mb-4">Ange nya saldon för de klienter du vill inkludera i denna session:</p>
+            <div id="endSessionClientInputs" class="grid grid-cols-1 gap-4 mb-6">
+                <!-- Dynamic client balance inputs will be inserted here -->
+            </div>
+            <div class="flex justify-end gap-3">
+                <button id="endSessionCancelBtn" class="btn btn-secondary">Avbryt</button>
+                <button id="endSessionSaveBtn" class="btn btn-primary">Spara session</button>
+            </div>
+        </div>
+    </div>
 
-            // Increment tournament count by 1
-            incrementTournamentButton.addEventListener('click', () => {
-                tournamentCount++;
-                tournamentCountElement.textContent = tournamentCount;
+    <!-- Start Session Client Selection Modal -->
+    <div id="startSessionClientSelectModal" class="fixed inset-0 bg-gray-600 bg-opacity50 flex items-center justify-center hidden">
+        <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full">
+            <h3 class="text-xl font-semibold mb-4 text-gray-800">Välj klienter för sessionen</h3>
+            <p class="text-gray-700 mb-4">Välj vilka klienter du vill inkludera i denna session:</p>
+            <div id="startSessionClientList" class="grid grid-cols-1 gap-3 mb-6">
+                <!-- Client checkboxes will be inserted here -->
+            </div>
+            <div class="flex justify-between gap-3">
+                <button id="startSessionModalSelectAllBtn" class="btn btn-secondary">Välj alla</button>
+                <div class="flex gap-3">
+                    <button id="startSessionModalCancelBtn" class="btn btn-secondary">Avbryt</button>
+                    <button id="startSessionModalStartBtn" class="btn btn-primary">Starta Session</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stop Session Confirmation Modal (for Toggle Session button) -->
+    <div id="stopSessionConfirmModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full">
+            <h3 class="text-xl font-semibold mb-4 text-gray-800">Avsluta pågående session?</h3>
+            <p class="text-gray-700 mb-4">Ange nya saldon för de klienter du vill inkludera i denna session. Om du inte vill spara sessionen, välj "Bara stoppa session".</p>
+            <div id="stopSessionClientInputs" class="grid grid-cols-1 gap-4 mb-6">
+                <!-- Dynamic client balance inputs will be inserted here -->
+            </div>
+            <div class="flex justify-end gap-3">
+                <button id="stopSessionJustStopBtn" class="btn btn-secondary">Bara stoppa session</button>
+                <button id="stopSessionSaveBtn" class="btn btn-primary">Spara session</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        let sessionBalanceDrafts = {}; // Stores user-entered balances per client ID
+        let sessionClientsInForm = []; // Keeps track of which clients are added to the form
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, collection, addDoc, setDoc, deleteDoc, onSnapshot, query, orderBy, updateDoc, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global variables for Firebase instances
+        let app;
+        let db;
+        let auth;
+        let userId = 'anonymous'; // Default value, updated on authentication
+        let clientsData = []; // Stores client data to easily retrieve currency and balance
+        let sessionsData = []; // Stores session data for statistics calculation (all sessions)
+        const MANUAL_BANKROLL_DOC_ID = 'manualBankroll'; // Unique ID for the manual bankroll document
+        const HOURLY_WAGE_DOC_ID = 'userHourlyWage'; // Unique ID for the hourly wage document
+
+        // Variables for manual bankroll and hourly wage
+        let manualBankrollAmount = null;
+        let manualBankrollCurrency = null;
+        let userHourlyWageRate = null; // New variable for hourly wage
+
+        // Global variables for element references (declared here, assigned in window.onload)
+        let userIdDisplay;
+        let newClientNameInput;
+        let newClientCurrencySelect;
+        let newClientBalanceInput;
+        let addClientBtn;
+        let clientListDiv;
+        let noClientsMessage;
+        let sessionClientSelectAdd;
+        let addClientToSessionBtn;
+        let dynamicClientBalanceInputsDiv;
+        let sessionNotesInput;
+        let addSessionBtn;
+        let totalWinLossDisplay;
+        let totalSessionsDisplay;
+        let sessionListTableBody;
+        let noSessionsMessage;
+        let toggleSessionBtn;
+        let sessionTimerDisplay;
+        let displayCurrencySelect;
+        let totalBankrollDisplay; // For settings view
+        let totalBankrollDisplaySessionView; // For session tracker view
+        let manualBankrollInput;
+        let updateManualBankrollBtn;
+        let sessionStartTimeInput; 
+        let sessionEndTimeInput;   
+
+        // New elements for navigation
+        let sessionTrackerNavBtn;
+        let historyAndGraphsNavBtn; // New nav button
+        let settingsNavBtn;
+        let sessionTrackerView;
+        let historyAndGraphsView; // New view
+        let settingsView;
+
+        // Custom Confirmation Modal elements
+        let customConfirmModal;
+        let confirmMessage;
+        let confirmOkBtn;
+        let confirmCancelBtn;
+
+        // End Session Confirmation Modal elements (for Add Session button)
+        let endSessionConfirmModal;
+        let endSessionClientInputs;
+        let endSessionSaveBtn;
+        let endSessionCancelBtn;
+
+        // Start Session Client Selection Modal elements
+        let startSessionClientSelectModal;
+        let startSessionClientList;
+        let startSessionModalStartBtn;
+        let startSessionModalCancelBtn;
+        let startSessionModalSelectAllBtn; // New button
+
+        // Stop Session Confirmation Modal elements (for Toggle Session button)
+        let stopSessionConfirmModal;
+        let stopSessionClientInputs;
+        let stopSessionSaveBtn;
+        let stopSessionJustStopBtn;
+
+        // History and Graphs elements
+        let periodSelectWeekBtn;
+        let periodSelectMonthBtn;
+        let periodSelectYearBtn;
+        let historyPeriodDisplay;
+        let historyTotalSessions;
+        let historyTotalHours; // New element for total hours
+        let historyTotalWinLoss;
+        let historyCalculatedHourlyWage; // New element for calculated hourly wage
+        let winLossChartCanvas;
+        let winLossChart; // Chart.js instance
+        let prevPeriodBtn; // New navigation button
+        let nextPeriodBtn; // New navigation button
+
+        // State for history view
+        let currentDisplayPeriod = {
+            type: 'month', // Default to month
+            value: '' // e.g., '2024-07', '2024-W28', '2024'
+        };
+
+
+        // Get app ID and Firebase configuration from the global environment
+        let appIdValue = 'default-app-id';
+        let firebaseConfigValue = {};
+
+        try {
+            appIdValue = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        } catch (e) {
+            console.error("Error accessing __app_id:", e);
+            appIdValue = 'default-app-id'; // Fallback
+        }
+
+        try {
+            firebaseConfigValue = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        } catch (e) {
+            console.error("Error parsing __firebase_config:", e);
+            firebaseConfigValue = {};
+        }
+
+        // Variables for ongoing session
+        let isSessionActive = false;
+        let currentSessionStartTime = null;
+        let sessionTimerInterval = null;
+
+        // Exchange rates (hardcoded for demo, in a real app these would be fetched dynamically)
+        // Base currency is USD (1 USD = 1 USD)
+        const exchangeRates = {
+            USD: 1.0,
+            EUR: 0.92, // 1 USD = 0.92 EUR (approximate)
+            SEK: 10.5   // 1 USD = 10.5 SEK (approximate)
+        };
+
+        const currencySymbols = {
+            USD: '$',
+            EUR: '€',
+            SEK: 'kr'
+        };
+
+        // Function to display messages instead of alert()
+        function showMessage(message, type = 'info') {
+            console.log(`Meddelande (${type}): ${message}`);
+            // For a more robust solution, create a modal or a temporary message box
+        }
+
+        // Custom confirmation function (replaces window.confirm)
+        function customConfirm(message) {
+            return new Promise((resolve) => {
+                confirmMessage.textContent = message;
+                customConfirmModal.classList.remove('hidden');
+
+                const handleOk = () => {
+                    customConfirmModal.classList.add('hidden');
+                    confirmOkBtn.removeEventListener('click', handleOk);
+                    confirmCancelBtn.removeEventListener('click', handleCancel);
+                    resolve(true);
+                };
+
+                const handleCancel = () => {
+                    customConfirmModal.classList.add('hidden');
+                    confirmOkBtn.removeEventListener('click', handleOk);
+                    confirmCancelBtn.removeEventListener('click', handleCancel);
+                    resolve(false);
+                };
+
+                confirmOkBtn.addEventListener('click', handleOk);
+                confirmCancelBtn.addEventListener('click', handleCancel);
+            });
+        }
+
+        // Function to show confirmation dialog to end ongoing session (for "Add Session" button)
+        function showEndSessionConfirmation() {
+            return new Promise((resolve) => {
+                endSessionClientInputs.innerHTML = ''; // Clear previous inputs
+
+                if (sessionClientsInForm.length === 0) {
+                    endSessionClientInputs.innerHTML = '<p class="text-gray-600">Inga klienter valda för denna session. Välj klienter i formuläret nedanför.</p>';
+                } else {
+                    sessionClientsInForm.forEach(clientId => {
+                        const client = clientsData.find(c => c.id === clientId);
+                        if (client) {
+                            const clientInputDiv = document.createElement('div');
+                            const initialValue = sessionBalanceDrafts[clientId] !== undefined ? sessionBalanceDrafts[clientId] : (client.initialBalance ? client.initialBalance.toFixed(2) : '0.00');
+
+                            clientInputDiv.className = 'flex items-center gap-2';
+                            clientInputDiv.innerHTML = `
+                                <label for="modal-new-balance-${client.id}" class="block text-sm font-medium text-gray-700 flex-grow">
+                                    Nytt Saldo för ${client.name} (<span class="font-semibold">${currencySymbols[client.currency]}</span>):
+                                </label>
+                                <input type="number" id="modal-new-balance-${client.id}"
+                                       placeholder="Ange nytt saldo"
+                                       class="input-field w-32 py-1 px-2 text-sm rounded-lg"
+                                       value="${initialValue}" />
+                            `;
+                            endSessionClientInputs.appendChild(clientInputDiv);
+                        }
+                    });
+                }
+
+                endSessionConfirmModal.classList.remove('hidden');
+
+                const handleSave = () => {
+                    const updatedBalances = {};
+                    let allBalancesValid = true;
+
+                    sessionClientsInForm.forEach(clientId => {
+                        const inputElement = document.getElementById(`modal-new-balance-${clientId}`);
+                        if (inputElement) {
+                            const newBalance = parseFloat(inputElement.value);
+                            if (isNaN(newBalance)) {
+                                allBalancesValid = false;
+                                showMessage(`Vänligen ange ett giltigt nummer för saldo för klient ${clientsData.find(c => c.id === clientId)?.name}.`, "error");
+                            }
+                            updatedBalances[clientId] = newBalance;
+                        }
+                    });
+
+                    if (!allBalancesValid) {
+                        return; // Don't close modal if inputs are invalid
+                    }
+
+                    endSessionConfirmModal.classList.add('hidden');
+                    endSessionSaveBtn.removeEventListener('click', handleSave);
+                    endSessionCancelBtn.removeEventListener('click', handleCancel);
+                    resolve({ confirmed: true, updatedBalances: updatedBalances });
+                };
+
+                const handleCancel = () => {
+                    endSessionConfirmModal.classList.add('hidden');
+                    endSessionSaveBtn.removeEventListener('click', handleSave);
+                    endSessionCancelBtn.removeEventListener('click', handleCancel);
+                    resolve({ confirmed: false });
+                };
+
+                endSessionSaveBtn.addEventListener('click', handleSave);
+                endSessionCancelBtn.addEventListener('click', handleCancel);
+            });
+        }
+
+        // Function to show confirmation dialog to start session with client selection
+        function showStartSessionClientSelectionModal() {
+            return new Promise((resolve) => {
+                startSessionClientList.innerHTML = ''; // Clear previous inputs
+
+                if (clientsData.length === 0) {
+                    startSessionClientList.innerHTML = '<p class="text-gray-600">Inga klienter tillagda ännu. Lägg till klienter i inställningarna först.</p>';
+                    startSessionModalStartBtn.disabled = true;
+                    startSessionModalSelectAllBtn.disabled = true; // Disable select all if no clients
+                } else {
+                    startSessionModalStartBtn.disabled = false;
+                    startSessionModalSelectAllBtn.disabled = false; // Enable select all
+                    clientsData.forEach(client => {
+                        const clientCheckboxDiv = document.createElement('div');
+                        clientCheckboxDiv.className = 'flex items-center';
+                        clientCheckboxDiv.innerHTML = `
+                            <input type="checkbox" id="start-session-client-${client.id}" value="${client.id}"
+                                   class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                            <label for="start-session-client-${client.id}" class="ml-2 text-gray-700">${client.name} (${client.currency})</label>
+                        `;
+                        startSessionClientList.appendChild(clientCheckboxDiv);
+                    });
+                }
+
+                startSessionClientSelectModal.classList.remove('hidden');
+
+                const handleStart = () => {
+                    const selectedClientIds = [];
+                    document.querySelectorAll('#startSessionClientList input[type="checkbox"]:checked').forEach(checkbox => {
+                        selectedClientIds.push(checkbox.value);
+                    });
+
+                    if (selectedClientIds.length === 0) {
+                        showMessage("Vänligen välj minst en klient för att starta sessionen.", "error");
+                        return;
+                    }
+
+                    startSessionClientSelectModal.classList.add('hidden');
+                    startSessionModalStartBtn.removeEventListener('click', handleStart);
+                    startSessionModalCancelBtn.removeEventListener('click', handleCancel);
+                    startSessionModalSelectAllBtn.removeEventListener('click', handleSelectAll); // Remove listener
+                    resolve(selectedClientIds);
+                };
+
+                const handleCancel = () => {
+                    startSessionClientSelectModal.classList.add('hidden');
+                    startSessionModalStartBtn.removeEventListener('click', handleStart);
+                    startSessionModalCancelBtn.removeEventListener('click', handleCancel);
+                    startSessionModalSelectAllBtn.removeEventListener('click', handleSelectAll); // Remove listener
+                    resolve(null); // Return null if canceled
+                };
+
+                const handleSelectAll = () => {
+                    document.querySelectorAll('#startSessionClientList input[type="checkbox"]').forEach(checkbox => {
+                        checkbox.checked = true;
+                    });
+                };
+
+                startSessionModalStartBtn.addEventListener('click', handleStart);
+                startSessionModalCancelBtn.addEventListener('click', handleCancel);
+                startSessionModalSelectAllBtn.addEventListener('click', handleSelectAll); // Add listener
+            });
+        }
+
+        // Function to show confirmation dialog to end ongoing session (for "End Session" button)
+        function showStopSessionConfirmationModal() {
+            return new Promise((resolve) => {
+                stopSessionClientInputs.innerHTML = ''; // Clear previous inputs
+
+                if (sessionClientsInForm.length === 0) {
+                    stopSessionClientInputs.innerHTML = '<p class="text-gray-600">Inga klienter valda för denna session. Sessionen kommer endast att stoppas.</p>';
+                    stopSessionSaveBtn.disabled = true; // Disable save if no clients
+                } else {
+                    stopSessionSaveBtn.disabled = false;
+                    sessionClientsInForm.forEach(clientId => {
+                        const client = clientsData.find(c => c.id === clientId);
+                        if (client) {
+                            const clientInputDiv = document.createElement('div');
+                            // Use the draft value if available, otherwise client's current balance
+                            const initialValue = sessionBalanceDrafts[clientId] !== undefined ? sessionBalanceDrafts[clientId] : (client.initialBalance ? client.initialBalance.toFixed(2) : '0.00');
+
+                            clientInputDiv.className = 'flex items-center gap-2';
+                            clientInputDiv.innerHTML = `
+                                <label for="stop-modal-new-balance-${client.id}" class="block text-sm font-medium text-gray-700 flex-grow">
+                                    Nytt Saldo för ${client.name} (<span class="font-semibold">${currencySymbols[client.currency]}</span>):
+                                </label>
+                                <input type="number" id="stop-modal-new-balance-${client.id}"
+                                       placeholder="Ange nytt saldo"
+                                       class="input-field w-32 py-1 px-2 text-sm rounded-lg"
+                                       value="${initialValue}" />
+                            `;
+                            stopSessionClientInputs.appendChild(clientInputDiv);
+                        }
+                    });
+                }
+
+                stopSessionConfirmModal.classList.remove('hidden');
+
+                const handleClose = (action, updatedBalances = {}) => {
+                    // Always update sessionBalanceDrafts with the latest values from the modal inputs
+                    sessionClientsInForm.forEach(clientId => {
+                        const inputElement = document.getElementById(`stop-modal-new-balance-${clientId}`);
+                        if (inputElement) {
+                            sessionBalanceDrafts[clientId] = parseFloat(inputElement.value);
+                        }
+                    });
+
+                    stopSessionConfirmModal.classList.add('hidden');
+                    stopSessionSaveBtn.removeEventListener('click', handleSave);
+                    stopSessionJustStopBtn.removeEventListener('click', handleJustStop);
+                    resolve({ action: action, updatedBalances: updatedBalances });
+                };
+
+                const handleSave = () => {
+                    const updatedBalances = {};
+                    let allBalancesValid = true;
+
+                    sessionClientsInForm.forEach(clientId => {
+                        const inputElement = document.getElementById(`stop-modal-new-balance-${clientId}`);
+                        if (inputElement) {
+                            const newBalance = parseFloat(inputElement.value);
+                            if (isNaN(newBalance)) {
+                                allBalancesValid = false;
+                                showMessage(`Vänligen ange ett giltigt nummer för saldo för klient ${clientsData.find(c => c.id === clientId)?.name}.`, "error");
+                            }
+                            updatedBalances[clientId] = newBalance;
+                        }
+                    });
+
+                    if (!allBalancesValid) {
+                        return; // Don't close modal if inputs are invalid
+                    }
+
+                    handleClose('save', updatedBalances);
+                };
+
+                const handleJustStop = () => {
+                    handleClose('stopOnly');
+                };
+
+                stopSessionSaveBtn.addEventListener('click', handleSave);
+                stopSessionJustStopBtn.addEventListener('click', handleJustStop);
+            });
+        }
+
+
+        // Initialize Firebase and authentication
+        async function initializeFirebase() {
+            try {
+                if (Object.keys(firebaseConfigValue).length === 0) {
+                    console.error("Firebase config är tom eller ogiltig.");
+                    showMessage("Kunde inte initiera Firebase. Kontrollera konfigurationen.", "error");
+                    return;
+                }
+                app = initializeApp(firebaseConfigValue); // Använd det säkert initierade värdet
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                // Try to log in with custom token if available
+                const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                // Listen for authentication status changes
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        userIdDisplay.textContent = userId;
+                        console.log("Användare inloggad:", userId);
+                        // Start listeners for data when user is logged in
+                        setupFirestoreListeners();
+                    } else {
+                        // If no user is logged in (e.g., error with token), use a random ID
+                        userId = crypto.randomUUID();
+                        userIdDisplay.textContent = userId + " (Anonym)";
+                        console.log("Användare inte inloggad, använder anonym ID:", userId);
+                        setupFirestoreListeners(); // Continue with anonymous ID
+                    }
+                });
+
+            } catch (error) {
+                console.error("Fel vid initiering av Firebase eller autentisering:", error);
+                showMessage(`Fel vid inloggning: ${error.message}`, "error");
+                // Fallback to random ID if authentication fails
+                userId = crypto.randomUUID();
+                userIdDisplay.textContent = userId + " (Anonym - Fel vid inloggning)";
+                setupFirestoreListeners();
+            }
+        }
+
+        // Function to set up Firestore listeners
+        function setupFirestoreListeners() {
+            if (!db || !userId) {
+                console.warn("Firestore eller användar-ID är inte redo.");
+                return;
+            }
+
+            // Listen for poker clients
+            const clientsRef = collection(db, `artifacts/${appIdValue}/users/${userId}/pokerClients`);
+            onSnapshot(clientsRef, (snapshot) => {
+                clientsData = []; // Clear and refill with new data
+                clientListDiv.innerHTML = ''; // Clear existing clients
+                sessionClientSelectAdd.innerHTML = '<option value="">Välj klient</option><option value="all_clients">Lägg till alla klienter</option>'; // Clear clients in session form, add "Add all" option
+
+                if (snapshot.empty) {
+                    noClientsMessage.style.display = 'block';
+                    sessionClientSelectAdd.disabled = true;
+                    addClientToSessionBtn.disabled = true;
+                } else {
+                    noClientsMessage.style.display = 'none';
+                    sessionClientSelectAdd.disabled = false;
+                    addClientToSessionBtn.disabled = false;
+                    snapshot.forEach(doc => {
+                        const client = { id: doc.id, ...doc.data() };
+                        clientsData.push(client);
+                        // Add to client list for management
+                        const clientItem = document.createElement('div');
+                        clientItem.className = 'flex flex-col sm:flex-row items-start sm:items-center justify-between bg-white p-3 rounded-lg shadow-sm border border-gray-200 gap-2';
+                        clientItem.innerHTML = `
+                            <div class="flex-grow">
+                                <span class="text-gray-800 font-medium">${client.name} (${client.currency})</span>
+                                <div class="flex items-center mt-1">
+                                    <label for="balance-${client.id}" class="text-sm text-gray-600 mr-2">Saldo:</label>
+                                    <input type="number" id="balance-${client.id}" value="${client.initialBalance ? client.initialBalance.toFixed(2) : '0.00'}"
+                                        class="input-field w-28 py-1 px-2 text-sm rounded-md" />
+                                    <span class="text-sm font-semibold ml-1">${currencySymbols[client.currency]}</span>
+                                </div>
+                            </div>
+                            <div class="flex gap-2 mt-2 sm:mt-0">
+                                <button data-id="${client.id}" class="update-client-balance-btn btn btn-secondary btn-small">Uppdatera Saldo</button>
+                                <button data-id="${client.id}" class="remove-client-btn btn-danger btn-small">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm6 0a1 1 0 01-2 0v6a1 1 0 112 0V8z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </div>
+                        `;
+                        clientListDiv.appendChild(clientItem);
+
+                        // Add to dropdown for sessions
+                        const option = document.createElement('option');
+                        option.value = client.id; // Use client ID as value
+                        option.textContent = `${client.name} (${client.currency})`;
+                        sessionClientSelectAdd.appendChild(option);
+                    });
+                    // Add event listeners for remove buttons
+                    document.querySelectorAll('.remove-client-btn').forEach(button => {
+                        button.onclick = (e) => removeClient(e.currentTarget.dataset.id);
+                    });
+                    // Add event listeners for update balance buttons
+                    document.querySelectorAll('.update-client-balance-btn').forEach(button => {
+                        button.onclick = (e) => {
+                            const clientId = e.currentTarget.dataset.id;
+                            const newBalance = parseFloat(document.getElementById(`balance-${clientId}`).value);
+                            updateClientBalance(clientId, newBalance);
+                        };
+                    });
+                }
+                // Update dynamic balance fields for session form
+                renderDynamicBalanceInputs();
+                updateTotalBankrollDisplay(); // Update bankroll when client data is loaded/changed
+            }, (error) => {
+                console.error("Fel vid hämtning av klienter:", error);
+                showMessage("Kunde inte ladda klienter.", "error");
             });
 
-            // Manually set tournament count
-            setTournamentCountButton.addEventListener('click', () => {
-                const manualValue = parseInt(manualTournamentInput.value, 10);
-                // Check if the input is a valid number
-                if (!isNaN(manualValue)) {
-                    tournamentCount = manualValue;
-                    tournamentCountElement.textContent = tournamentCount;
-                    manualTournamentInput.value = ''; // Clear the input field after setting
-                } else {
-                    // Display a custom message box instead of alert()
-                    const messageBox = document.createElement('div');
-                    messageBox.style.cssText = `
-                        position: fixed;
-                        top: 50%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                        background-color: #fff;
-                        padding: 20px;
-                        border-radius: 8px;
-                        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-                        z-index: 1000;
-                        text-align: center;
-                        font-family: 'Inter', sans-serif;
-                        color: #333;
-                    `;
-                    messageBox.innerHTML = `
-                        <p>Vänligen ange ett giltigt nummer för turneringsräknaren.</p>
-                        <button style="
-                            margin-top: 15px;
-                            padding: 8px 15px;
-                            background-color: #3498db;
-                            color: white;
-                            border: none;
-                            border-radius: 5px;
-                            cursor: pointer;
-                        ">OK</button>
-                    `;
-                    document.body.appendChild(messageBox);
+            // Listen for ALL poker sessions (for history and overall stats)
+            const sessionsRef = collection(db, `artifacts/${appIdValue}/users/${userId}/pokerSessions`);
+            const qAllSessions = query(sessionsRef, orderBy("timestamp", "desc"));
 
-                    messageBox.querySelector('button').addEventListener('click', () => {
-                        document.body.removeChild(messageBox);
+            onSnapshot(qAllSessions, (snapshot) => {
+                sessionsData = []; // Clear and refill with ALL session data
+                snapshot.forEach(doc => {
+                    sessionsData.push(doc.data());
+                });
+
+                // Update latest 5 sessions table
+                sessionListTableBody.innerHTML = ''; // Clear existing sessions
+                const latest5Sessions = sessionsData.slice(0, 5); // Get only the latest 5 for the table
+
+                if (latest5Sessions.length === 0) {
+                    noSessionsMessage.style.display = 'block';
+                } else {
+                    noSessionsMessage.style.display = 'none';
+                    latest5Sessions.forEach(session => {
+                        const row = document.createElement('tr');
+                        row.className = 'table-row';
+                        
+                        // Corrected date and time formatting
+                        const startDate = session.startTime ? new Date(session.startTime) : null;
+                        const endDate = session.endTime ? new Date(session.endTime) : null;
+
+                        const datePart = startDate ? startDate.toLocaleDateString('sv-SE') : 'N/A';
+                        const startTimePart = startDate ? startDate.toLocaleTimeString('sv-SE', {hour: '2-digit', minute:'2-digit'}) : 'N/A';
+                        const endTimePart = endDate ? endDate.toLocaleTimeString('sv-SE', {hour: '2-digit', minute:'2-digit'}) : 'N/A';
+                        
+                        // Calculate total win/loss for display based on current display currency
+                        const sessionTotalWinLossDisplay = convertCurrency(session.totalWinLoss || 0, 'USD', displayCurrencySelect.value);
+                        const winLossColor = sessionTotalWinLossDisplay >= 0 ? 'text-green-600' : 'text-red-600';
+                        const displaySymbol = currencySymbols[displayCurrencySelect.value] || '$';
+
+                        // Generate client details string for table
+                        let clientDetailsHtml = '';
+                        if (session.sessionClientDetails && session.sessionClientDetails.length > 0) {
+                            clientDetailsHtml = session.sessionClientDetails.map(detail => {
+                                const detailWinLossColor = detail.winLoss >= 0 ? 'text-green-600' : 'text-red-600';
+                                const detailSymbol = currencySymbols[detail.currency] || '$';
+                                return `<div>${detail.pokerClientName}: <span class="${detailWinLossColor}">${detail.winLoss.toFixed(2)} ${detailSymbol}</span></div>`;
+                            }).join('');
+                        } else {
+                            clientDetailsHtml = 'N/A'; // Should not happen with validation
+                        }
+
+                        row.innerHTML = `
+                            <td>
+                                <div class="text-sm font-medium text-gray-900">${datePart}</div>
+                                <div class="text-xs text-gray-500">${startTimePart} - ${endTimePart}</div>
+                            </td>
+                            <td>${clientDetailsHtml}</td>
+                            <td class="text-sm font-semibold ${winLossColor}">${sessionTotalWinLossDisplay.toFixed(2)} ${displaySymbol}</td>
+                            <td class="text-sm text-gray-700 max-w-xs overflow-hidden text-ellipsis whitespace-nowrap" title="${session.notes || ''}">${session.notes || 'Inga'}</td>
+                            <td>
+                                <button data-id="${doc.id}" class="remove-session-btn btn-danger text-sm px-3 py-1 rounded-md">Ta bort</button>
+                            </td>
+                        `;
+                        sessionListTableBody.appendChild(row);
+                    });
+
+                    // Add event listeners for remove buttons
+                    document.querySelectorAll('.remove-session-btn').forEach(button => {
+                        button.onclick = (e) => removeSession(e.currentTarget.dataset.id);
+                    });
+                }
+                updateStatistics(); // Update overall statistics when all session data is loaded
+                // Also update history and graphs when sessionsData changes
+                // Only update if history view is active, otherwise it will be updated when user navigates to it
+                if (!historyAndGraphsView.classList.contains('hidden-view')) {
+                    updateHistoryAndGraph(currentDisplayPeriod.type, currentDisplayPeriod.value);
+                }
+            }, (error) => {
+                console.error("Fel vid hämtning av sessioner:", error);
+                showMessage("Kunde inte ladda sessioner.", "error");
+            });
+
+            // Listen for manual bankroll
+            const manualBankrollDocRef = doc(db, `artifacts/${appIdValue}/users/${userId}/manualBankroll`, MANUAL_BANKROLL_DOC_ID);
+            onSnapshot(manualBankrollDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    manualBankrollAmount = data.amount;
+                    manualBankrollCurrency = data.currency;
+                } else {
+                    manualBankrollAmount = null;
+                    manualBankrollCurrency = null;
+                }
+                updateTotalBankrollDisplay(); // Update bankroll when manual bankroll is loaded/changed
+            }, (error) => {
+                console.error("Fel vid hämtning av manuell bankrulle:", error);
+                showMessage("Kunde inte ladda manuell bankrulle.", "error");
+            });
+
+            // Listen for hourly wage settings
+            const hourlyWageDocRef = doc(db, `artifacts/${appIdValue}/users/${userId}/settings`, HOURLY_WAGE_DOC_ID);
+            onSnapshot(hourlyWageDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    userHourlyWageRate = data.rate;
+                } else {
+                    userHourlyWageRate = null;
+                }
+                // Re-calculate history and graph if visible, as hourly wage affects it
+                if (!historyAndGraphsView.classList.contains('hidden-view')) {
+                    updateHistoryAndGraph(currentDisplayPeriod.type, currentDisplayPeriod.value);
+                }
+            }, (error) => {
+                console.error("Fel vid hämtning av timlön inställningar:", error);
+                showMessage("Kunde inte ladda timlön inställningar.", "error");
+            });
+        }
+
+        // Function to convert currency
+        function convertCurrency(amount, fromCurrency, toCurrency) {
+            if (fromCurrency === toCurrency) {
+                return amount;
+            }
+            const amountInUSD = amount / (exchangeRates[fromCurrency] || 1);
+            return amountInUSD * (exchangeRates[toCurrency] || 1);
+        }
+
+        // Function to update statistics overview (total win/loss and number of sessions)
+        function updateStatistics() {
+            const selectedDisplayCurrency = displayCurrencySelect.value;
+            const displaySymbol = currencySymbols[selectedDisplayCurrency] || '$';
+            let allSessionsTotalWinLoss = 0;
+            sessionsData.forEach(session => {
+                allSessionsTotalWinLoss += convertCurrency(session.totalWinLoss || 0, 'USD', selectedDisplayCurrency);
+            });
+
+            totalWinLossDisplay.textContent = `${allSessionsTotalWinLoss.toFixed(2)} ${displaySymbol}`;
+            totalWinLossDisplay.className = `text-3xl font-bold mt-1 ${allSessionsTotalWinLoss >= 0 ? 'text-blue-700' : 'text-red-700'}`;
+            totalSessionsDisplay.textContent = sessionsData.length; // Total count of all sessions
+        }
+
+        // Function to calculate and display total bankroll (prioritizes manual)
+        function updateTotalBankrollDisplay() {
+            const selectedDisplayCurrency = displayCurrencySelect.value;
+            const displaySymbol = currencySymbols[selectedDisplayCurrency] || '$';
+            let finalBankroll = 0;
+
+            if (manualBankrollAmount !== null && manualBankrollCurrency !== null) {
+                // Use manual bankroll if set
+                finalBankroll = convertCurrency(manualBankrollAmount, manualBankrollCurrency, selectedDisplayCurrency);
+            } else {
+                // Otherwise, sum from clients
+                clientsData.forEach(client => {
+                    const clientBalance = parseFloat(client.initialBalance || 0);
+                    const clientCurrency = client.currency || 'USD';
+                    finalBankroll += convertCurrency(clientBalance, clientCurrency, selectedDisplayCurrency);
+                });
+            }
+
+            // Update display in both settings and session overview
+            if (totalBankrollDisplay) { // Check if element exists (only on settings view)
+                totalBankrollDisplay.textContent = `${finalBankroll.toFixed(2)} ${displaySymbol}`;
+            }
+            if (totalBankrollDisplaySessionView) { // Check if element exists (only on session view)
+                totalBankrollDisplaySessionView.textContent = `${finalBankroll.toFixed(2)} ${displaySymbol}`;
+            }
+        }
+
+        // Function to render dynamic balance fields for the session form
+        function renderDynamicBalanceInputs() {
+            dynamicClientBalanceInputsDiv.innerHTML = ''; // Clear existing fields
+
+            sessionClientsInForm.forEach(clientId => {
+                const client = clientsData.find(c => c.id === clientId);
+                if (client) {
+                    const clientInputDiv = document.createElement('div');
+                    // Use the saved draft value if available, otherwise client's current balance
+                    const initialValue = sessionBalanceDrafts[clientId] !== undefined ? sessionBalanceDrafts[clientId] : (client.initialBalance ? client.initialBalance.toFixed(2) : '0.00');
+
+                    clientInputDiv.className = 'flex flex-col sm:flex-row items-start sm:items-center gap-2';
+                    clientInputDiv.innerHTML = `
+                        <div class="flex-grow">
+                            <label for="session-new-balance-${client.id}" class="block text-sm font-medium text-gray-700 mb-1">
+                                Nytt Saldo för ${client.name} (<span class="font-semibold">${currencySymbols[client.currency]}</span>):
+                            </label>
+                            <input type="number" id="session-new-balance-${client.id}"
+                                   placeholder="Ange nytt saldo"
+                                   class="input-field rounded-lg"
+                                   value="${initialValue}" />
+                        </div>
+                        <button type="button" data-client-id="${client.id}" class="remove-client-from-session-btn btn btn-danger btn-small mt-2 sm:mt-0">Ta bort</button>
+                    `;
+                    dynamicClientBalanceInputsDiv.appendChild(clientInputDiv);
+
+                    // Add event listener to save draft when input changes
+                    const inputElement = document.getElementById(`session-new-balance-${client.id}`);
+                    inputElement.addEventListener('input', (e) => {
+                        sessionBalanceDrafts[client.id] = e.target.value;
                     });
                 }
             });
 
-            // Reset tournament count
-            resetTournamentButton.addEventListener('click', () => {
-                tournamentCount = 0;
-                tournamentCountElement.textContent = tournamentCount;
+            // Add event listener to remove client from session form
+            document.querySelectorAll('.remove-client-from-session-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const clientIdToRemove = e.currentTarget.dataset.clientId;
+                    sessionClientsInForm = sessionClientsInForm.filter(id => id !== clientIdToRemove);
+                    delete sessionBalanceDrafts[clientIdToRemove]; // Remove draft as well
+                    renderDynamicBalanceInputs(); // Re-render fields
+                });
             });
-        });
+        }
+
+        // Function to add a new poker client
+        async function addClient() {
+            const clientName = newClientNameInput.value.trim();
+            const clientCurrency = newClientCurrencySelect.value; // Get selected currency
+            const initialBalance = parseFloat(newClientBalanceInput.value); // Get initial balance
+
+            if (clientName === "") {
+                showMessage("Klientnamn kan inte vara tomt.", "error");
+                return;
+            }
+            if (isNaN(initialBalance)) {
+                showMessage("Nuvarande saldo måste vara ett nummer.", "error");
+                return;
+            }
+
+            try {
+                // Add client to Firestore
+                await addDoc(collection(db, `artifacts/${appIdValue}/users/${userId}/pokerClients`), {
+                    name: clientName,
+                    currency: clientCurrency, // Save currency
+                    initialBalance: initialBalance, // Save initial balance
+                    timestamp: new Date().toISOString()
+                });
+                newClientNameInput.value = ''; // Clear input field
+                newClientCurrencySelect.value = 'USD'; // Reset to default currency
+                newClientBalanceInput.value = ''; // Clear balance field
+                showMessage("Klient tillagd!");
+            } catch (error) {
+                console.error("Fel vid tillägg av klient:", error);
+                showMessage("Kunde inte lägga till klient.", "error");
+            }
+        }
+
+        // Function to update an existing client's balance
+        async function updateClientBalance(clientId, newBalance) {
+            if (isNaN(newBalance)) {
+                showMessage("Saldot måste vara ett nummer.", "error");
+                return;
+            }
+            try {
+                const clientDocRef = doc(db, `artifacts/${appIdValue}/users/${userId}/pokerClients`, clientId);
+                await updateDoc(clientDocRef, {
+                    initialBalance: newBalance,
+                    lastUpdated: new Date().toISOString()
+                });
+                showMessage("Klientens saldo uppdaterat!");
+            } catch (error) {
+                console.error("Fel vid uppdatering av klientsaldo:", error);
+                showMessage("Kunde inte uppdatera klientsaldo.", "error");
+            }
+        }
+
+        // Function to remove a poker client
+        async function removeClient(clientId) {
+            if (!await customConfirm("Är du säker på att du vill ta bort denna klient?")) {
+                return;
+            }
+            try {
+                await deleteDoc(doc(db, `artifacts/${appIdValue}/users/${userId}/pokerClients`, clientId));
+                showMessage("Klient borttagen!");
+            } catch (error) {
+                console.error("Fel vid borttagning av klient:", error);
+                showMessage("Kunde inte ta bort klient.", "error");
+            }
+        }
+
+        // Common function to save session data to Firestore
+        async function saveSessionData(startTime, endTime, notes, clientBalances) {
+            let totalSessionWinLossUSD = 0;
+            const sessionClientDetails = [];
+
+            for (const clientId in clientBalances) {
+                const client = clientsData.find(c => c.id === clientId);
+                if (!client) {
+                    console.error(`Klient med ID ${clientId} hittades inte under sparande.`);
+                    showMessage(`Klient med ID ${clientId} kunde inte hittas under sparande.`, "error");
+                    continue; // Skip this client but try to save others
+                }
+
+                const oldBalance = parseFloat(client.initialBalance || 0);
+                const newBalance = parseFloat(clientBalances[clientId]);
+
+                if (isNaN(newBalance)) {
+                    showMessage(`Nytt saldo för ${client.name} måste vara ett nummer.`, "error");
+                    continue; // Skip this client but try to save others
+                }
+
+                const clientWinLoss = newBalance - oldBalance;
+                totalSessionWinLossUSD += convertCurrency(clientWinLoss, client.currency, 'USD'); // Sum in base currency
+
+                sessionClientDetails.push({
+                    clientId: client.id,
+                    pokerClientName: client.name,
+                    currency: client.currency,
+                    oldBalance: oldBalance,
+                    newBalance: newBalance,
+                    winLoss: clientWinLoss
+                });
+
+                // Update client's balance in Firestore
+                await updateClientBalance(clientId, newBalance);
+            }
+
+            try {
+                // Add session to Firestore
+                await addDoc(collection(db, `artifacts/${appIdValue}/users/${userId}/pokerSessions`), {
+                    startTime: startTime,
+                    endTime: endTime,
+                    notes: notes,
+                    totalWinLoss: totalSessionWinLossUSD, // Save total win/loss for the session in base currency
+                    sessionClientDetails: sessionClientDetails, // Save details for each client
+                    timestamp: new Date().toISOString()
+                });
+                showMessage("Session sparad!");
+            } catch (error) {
+                console.error("Fel vid sparande av session:", error);
+                showMessage("Kunde inte spara session.", "error");
+            }
+        }
+
+        // Function to add a new manual session (original addSession logic)
+        async function addManualSession() {
+            const startTime = sessionStartTimeInput.value;
+            const endTime = sessionEndTimeInput.value;
+            const notes = sessionNotesInput.value.trim();
+
+            if (!startTime || !endTime || sessionClientsInForm.length === 0) {
+                showMessage("Starttid, sluttid och minst en klient måste fyllas i korrekt.", "error");
+                return;
+            }
+
+            // Call the common save function
+            await saveSessionData(startTime, endTime, notes, sessionBalanceDrafts);
+
+            // Clear form fields after successful save
+            const now = new Date();
+            const offset = now.getTimezoneOffset() * 60000;
+            sessionStartTimeInput.value = (new Date(now - offset)).toISOString().slice(0, 16);
+            sessionEndTimeInput.value = (new Date(now - offset)).toISOString().slice(0, 16);
+            sessionNotesInput.value = '';
+            sessionClientsInForm = [];
+            sessionBalanceDrafts = {};
+            renderDynamicBalanceInputs(); // This will clear dynamicClientBalanceInputsDiv
+        }
+
+        // Function to remove a session
+        async function removeSession(sessionId) {
+            if (!await customConfirm("Är du säker på att du vill ta bort denna session?")) {
+                return;
+            }
+            try {
+                await deleteDoc(doc(db, `artifacts/${appIdValue}/users/${userId}/pokerSessions`, sessionId));
+                showMessage("Session borttagen!");
+            } catch (error) {
+                console.error("Fel vid borttagning av session:", error);
+                showMessage("Kunde inte ta bort session.", "error");
+            }
+        }
+
+        // Function to update manual bankroll
+        async function updateManualBankroll() {
+            const newBankrollAmount = parseFloat(manualBankrollInput.value);
+            const bankrollCurrency = displayCurrencySelect.value; // Use the selected display currency as the bankroll currency
+
+            if (isNaN(newBankrollAmount)) {
+                showMessage("Bankrulle måste vara ett nummer.", "error");
+                return;
+            }
+
+            try {
+                const manualBankrollDocRef = doc(db, `artifacts/${appIdValue}/users/${userId}/manualBankroll`, MANUAL_BANKROLL_DOC_ID);
+                await setDoc(manualBankrollDocRef, {
+                    amount: newBankrollAmount,
+                    currency: bankrollCurrency,
+                    lastUpdated: new Date().toISOString()
+                }, { merge: true });
+                manualBankrollInput.value = ''; // Clear input field
+                showMessage("Bankrulle manuellt uppdaterad!");
+            } catch (error) {
+                console.error("Fel vid uppdatering av manuell bankrulle:", error);
+                showMessage("Kunde inte uppdatera manuell bankrulle.", "error");
+            }
+        }
+
+        // Function to format time
+        function formatTime(ms) {
+            const totalSeconds = Math.floor(ms / 1000);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+
+            return [hours, minutes, seconds]
+                .map(unit => String(unit).padStart(2, '0'))
+                .join(':');
+        }
+
+        // Function to update the session timer
+        function updateSessionTimer() {
+            if (currentSessionStartTime) {
+                const elapsed = Date.now() - currentSessionStartTime.getTime();
+                sessionTimerDisplay.textContent = formatTime(elapsed);
+            }
+        }
+
+        // Helper function to reset ongoing session state and clear form
+        function resetSessionStateAndClearForm() {
+            isSessionActive = false;
+            toggleSessionBtn.textContent = 'Starta Session';
+            toggleSessionBtn.classList.remove('btn-danger');
+            toggleSessionBtn.classList.add('btn-primary');
+            clearInterval(sessionTimerInterval);
+            sessionTimerInterval = null;
+            sessionTimerDisplay.textContent = '00:00:00';
+            currentSessionStartTime = null;
+
+            // Re-enable manual time fields
+            sessionStartTimeInput.disabled = false;
+            sessionEndTimeInput.disabled = false;
+
+            // Clear the main session form fields
+            const now = new Date();
+            const offset = now.getTimezoneOffset() * 60000;
+            sessionStartTimeInput.value = (new Date(now - offset)).toISOString().slice(0, 16);
+            sessionEndTimeInput.value = (new Date(now - offset)).toISOString().slice(0, 16);
+            sessionNotesInput.value = '';
+            sessionClientsInForm = [];
+            sessionBalanceDrafts = {};
+            renderDynamicBalanceInputs(); // Clear dynamic inputs
+        }
+
+        // Function to toggle session start/stop
+        async function toggleSession() {
+            if (!isSessionActive) {
+                // Start session
+                const selectedClientIds = await showStartSessionClientSelectionModal();
+                if (selectedClientIds === null) {
+                    showMessage("Sessionen startades inte.", "info");
+                    return; // User canceled client selection
+                }
+
+                // Initialize sessionClientsInForm with selected clients
+                sessionClientsInForm = selectedClientIds;
+                sessionBalanceDrafts = {}; // Clear any previous drafts
+
+                // Populate dynamic client balance inputs for the newly started session
+                renderDynamicBalanceInputs();
+
+                currentSessionStartTime = new Date();
+                isSessionActive = true;
+                toggleSessionBtn.textContent = 'Avsluta Session';
+                toggleSessionBtn.classList.remove('btn-primary');
+                toggleSessionBtn.classList.add('btn-danger');
+
+                // Disable manual time fields
+                sessionStartTimeInput.disabled = true;
+                sessionEndTimeInput.disabled = true;
+
+                // Start timer
+                sessionTimerInterval = setInterval(updateSessionTimer, 1000);
+                showMessage("Session startad!");
+            } else {
+                // End session - NEW LOGIC
+                const result = await showStopSessionConfirmationModal();
+
+                // Get end time for saving
+                const endTime = new Date();
+                const offset = endTime.getTimezoneOffset() * 60000;
+                const sessionEndIso = (new Date(endTime.getTime() - offset)).toISOString().slice(0, 16);
+
+                if (result.action === 'save') {
+                    await saveSessionData(
+                        (new Date(currentSessionStartTime.getTime() - offset)).toISOString().slice(0, 16), // Start time of ongoing session
+                        sessionEndIso, // End time is now
+                        sessionNotesInput.value.trim(), // Notes from the main form
+                        result.updatedBalances // Balances from the modal
+                    );
+                    resetSessionStateAndClearForm(); // Reset state and clear form after saving
+                } else if (result.action === 'stopOnly') {
+                    resetSessionStateAndClearForm(); // Reset state and clear form without saving
+                    showMessage("Sessionen stoppades utan att sparas. Du kan nu redigera och lägga till den manuellt.", "info");
+                }
+                // If 'cancel', do nothing.
+            }
+        }
+
+        // New function to handle clicks on the "Add Session" button
+        async function handleAddSessionClick() {
+            if (isSessionActive) {
+                // If an ongoing session exists, prompt to end it first
+                const result = await showStopSessionConfirmationModal();
+
+                // Get end time for saving (even if not saving, for consistency)
+                const endTime = new Date();
+                const offset = endTime.getTimezoneOffset() * 60000;
+                const sessionEndIso = (new Date(endTime.getTime() - offset)).toISOString().slice(0, 16);
+
+                if (result.action === 'save') {
+                    await saveSessionData(
+                        (new Date(currentSessionStartTime.getTime() - offset)).toISOString().slice(0, 16), // Start time of ongoing session
+                        sessionEndIso, // End time is now
+                        sessionNotesInput.value.trim(), // Notes from the main form
+                        result.updatedBalances // Balances from the modal
+                    );
+                    resetSessionStateAndClearForm(); // Reset state and clear form after saving
+                } else if (result.action === 'stopOnly') {
+                    resetSessionStateAndClearForm(); // Reset state and clear form without saving
+                    showMessage("Pågående session stoppad utan att sparas. Du kan nu redigera och lägga till den manuellt.", "info");
+                }
+                // If 'cancel', do nothing, leave the ongoing session as is.
+            } else {
+                // No ongoing session, proceed with adding a new manual session
+                await addManualSession();
+            }
+        }
+
+
+        // Function to show a specific page
+        function showPage(pageName) {
+            sessionTrackerView.classList.add('hidden-view');
+            historyAndGraphsView.classList.add('hidden-view'); // Hide new view
+            settingsView.classList.add('hidden-view');
+
+            sessionTrackerNavBtn.classList.remove('btn-primary', 'btn-secondary');
+            sessionTrackerNavBtn.classList.add('btn-secondary');
+            historyAndGraphsNavBtn.classList.remove('btn-primary', 'btn-secondary'); // Update new nav button
+            historyAndGraphsNavBtn.classList.add('btn-secondary');
+            settingsNavBtn.classList.remove('btn-primary', 'btn-secondary');
+            settingsNavBtn.classList.add('btn-secondary');
+
+            if (pageName === 'sessionTracker') {
+                sessionTrackerView.classList.remove('hidden-view');
+                sessionTrackerNavBtn.classList.remove('btn-secondary');
+                sessionTrackerNavBtn.classList.add('btn-primary');
+            } else if (pageName === 'historyAndGraphs') { // New page logic
+                historyAndGraphsView.classList.remove('hidden-view');
+                historyAndGraphsNavBtn.classList.remove('btn-secondary');
+                historyAndGraphsNavBtn.classList.add('btn-primary');
+                // Set initial period for history view to current month
+                const now = new Date();
+                currentDisplayPeriod.type = 'month';
+                currentDisplayPeriod.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+                updateHistoryAndGraph(currentDisplayPeriod.type, currentDisplayPeriod.value);
+            }
+            else if (pageName === 'settings') {
+                settingsView.classList.remove('hidden-view');
+                settingsNavBtn.classList.remove('btn-secondary');
+                settingsNavBtn.classList.add('btn-primary');
+            }
+        }
+
+        // Helper function to get ISO week number (from Stack Overflow)
+        function getWeekNumber(d) {
+            d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+            d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+            var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+            var weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+            return weekNo;
+        }
+
+        // Helper function to get the Monday of an ISO week
+        function getDateOfISOWeek(w, y) {
+            var simple = new Date(y, 0, 1 + (w - 1) * 7);
+            var dow = simple.getDay();
+            var ISOweekStart = simple;
+            if (dow <= 4)
+                ISOweekStart.setDate(simple.getDate() - simple.getDay() + 1);
+            else
+                ISOweekStart.setDate(simple.getDate() + 8 - simple.getDay());
+            return ISOweekStart;
+        }
+
+        // Function to filter and aggregate session data for a SPECIFIC period
+        function filterAndAggregateData(periodType, periodValue) {
+            const selectedDisplayCurrency = displayCurrencySelect.value;
+            let totalSessionsCount = 0;
+            let totalWinLossForPeriod = 0;
+            let totalHoursPlayedForPeriod = 0; // New variable for total hours
+            let periodLabel = '';
+            const aggregatedChartData = new Map(); // Key: sub-period identifier, Value: aggregated win/loss
+
+            let startDate, endDate;
+            let chartXAxisLabel = ''; // For Chart.js x-axis title
+
+            if (periodType === 'month') {
+                const [year, month] = periodValue.split('-').map(Number);
+                startDate = new Date(year, month - 1, 1);
+                endDate = new Date(year, month, 0); // Last day of the month
+                periodLabel = `${startDate.toLocaleString('sv-SE', { month: 'long' })} ${year}`;
+                chartXAxisLabel = 'Dag';
+
+                // Initialize map with all days of the month
+                let tempDate = new Date(startDate);
+                while (tempDate <= endDate) {
+                    aggregatedChartData.set(tempDate.toISOString().slice(0, 10), 0);
+                    tempDate.setDate(tempDate.getDate() + 1);
+                }
+
+            } else if (periodType === 'year') {
+                const year = Number(periodValue);
+                startDate = new Date(year, 0, 1);
+                endDate = new Date(year, 11, 31);
+                periodLabel = `${year}`;
+                chartXAxisLabel = 'Månad';
+
+                // Initialize map with all 12 months
+                for (let i = 0; i < 12; i++) {
+                    aggregatedChartData.set(i, 0); // Month index 0-11
+                }
+
+            } else if (periodType === 'week') {
+                const [year, weekNum] = periodValue.split('-W').map(Number);
+                startDate = getDateOfISOWeek(weekNum, year);
+                endDate = new Date(startDate);
+                endDate.setDate(startDate.getDate() + 6); // End of the week (Sunday)
+                periodLabel = `Vecka ${weekNum} ${year}`;
+                chartXAxisLabel = 'Dag';
+
+                // Initialize map with all 7 days of the week
+                let tempDate = new Date(startDate);
+                for (let i = 0; i < 7; i++) {
+                    aggregatedChartData.set(tempDate.toISOString().slice(0, 10), 0);
+                    tempDate.setDate(tempDate.getDate() + 1);
+                }
+            }
+
+            sessionsData.forEach(session => {
+                const sessionDate = new Date(session.startTime);
+                // Ensure sessionDate is within the selected period
+                if (sessionDate >= startDate && sessionDate <= endDate) {
+                    const winLoss = convertCurrency(session.totalWinLoss || 0, 'USD', selectedDisplayCurrency);
+                    totalWinLossForPeriod += winLoss;
+                    totalSessionsCount++;
+
+                    // Calculate duration in hours for the period's total
+                    if (session.startTime && session.endTime) {
+                        const startMs = new Date(session.startTime).getTime();
+                        const endMs = new Date(session.endTime).getTime();
+                        const durationMs = endMs - startMs;
+                        if (durationMs > 0) { // Only count positive durations
+                            totalHoursPlayedForPeriod += durationMs / (1000 * 60 * 60); // Convert milliseconds to hours
+                        }
+                    }
+
+                    let chartKey;
+                    if (periodType === 'year') {
+                        chartKey = sessionDate.getMonth(); // 0-11
+                    } else { // month or week
+                        chartKey = sessionDate.toISOString().slice(0, 10); // 'YYYY-MM-DD'
+                    }
+                    // Add to existing value or set if new
+                    aggregatedChartData.set(chartKey, (aggregatedChartData.get(chartKey) || 0) + winLoss);
+                }
+            });
+
+            let chartLabels = [];
+            let chartData = [];
+
+            if (periodType === 'year') {
+                for (let i = 0; i < 12; i++) {
+                    chartLabels.push(new Date(startDate.getFullYear(), i, 1).toLocaleString('sv-SE', { month: 'short' }));
+                    chartData.push(aggregatedChartData.get(i));
+                }
+            } else { // month or week
+                let currentDay = new Date(startDate);
+                while (currentDay <= endDate) {
+                    const dateString = currentDay.toISOString().slice(0, 10);
+                    chartLabels.push(currentDay.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' }));
+                    chartData.push(aggregatedChartData.get(dateString));
+                    currentDay.setDate(currentDay.getDate() + 1);
+                }
+            }
+
+            // Calculate hourly wage for the period
+            let calculatedHourlyWage = 0;
+            if (totalHoursPlayedForPeriod > 0) {
+                calculatedHourlyWage = totalWinLossForPeriod / totalHoursPlayedForPeriod;
+            }
+
+            return { totalSessionsCount, totalWinLossForPeriod, totalHoursPlayedForPeriod, calculatedHourlyWage, chartLabels, chartData, periodLabel, chartXAxisLabel };
+        }
+
+        // Function to update history and graph display
+        function updateHistoryAndGraph(periodType, periodValue) {
+            const { chartLabels, chartData, totalSessionsCount, totalWinLossForPeriod, totalHoursPlayedForPeriod, calculatedHourlyWage, periodLabel, chartXAxisLabel } = filterAndAggregateData(periodType, periodValue);
+            const displaySymbol = currencySymbols[displayCurrencySelect.value] || '$';
+
+            // Debugging logs
+            console.log("Chart Labels:", chartLabels);
+            console.log("Chart Data:", chartData);
+            console.log("Total Sessions for Period:", totalSessionsCount);
+            console.log("Total Win/Loss for Period:", totalWinLossForPeriod);
+            console.log("Total Hours Played for Period:", totalHoursPlayedForPeriod);
+            console.log("Calculated Hourly Wage:", calculatedHourlyWage);
+
+
+            // Update summary displays
+            historyTotalSessions.textContent = totalSessionsCount;
+            historyTotalHours.textContent = `${totalHoursPlayedForPeriod.toFixed(1)} timmar`; // Display hours with one decimal
+            historyTotalWinLoss.textContent = `${totalWinLossForPeriod.toFixed(2)} ${displaySymbol}`;
+            historyTotalWinLoss.className = `text-3xl font-bold mt-1 ${totalWinLossForPeriod >= 0 ? 'text-blue-700' : 'text-red-700'}`;
+            
+            // Display calculated hourly wage
+            if (totalHoursPlayedForPeriod > 0) {
+                historyCalculatedHourlyWage.textContent = `${calculatedHourlyWage.toFixed(2)} ${displaySymbol}/timme`;
+                historyCalculatedHourlyWage.className = `text-2xl font-bold mt-1 ${calculatedHourlyWage >= 0 ? 'text-blue-700' : 'text-red-700'}`;
+            } else {
+                historyCalculatedHourlyWage.textContent = `N/A`;
+                historyCalculatedHourlyWage.className = `text-2xl font-bold mt-1 text-gray-700`;
+            }
+
+
+            historyPeriodDisplay.textContent = periodLabel; // Update with actual period string
+
+            // Update chart
+            if (winLossChart) {
+                winLossChart.destroy(); // Destroy existing chart before creating a new one
+            }
+
+            // Ensure chartData is not null or undefined before mapping for colors
+            const backgroundColors = chartData.map(value => value >= 0 ? 'rgba(59, 130, 246, 0.6)' : 'rgba(239, 68, 68, 0.6)');
+            const borderColors = chartData.map(value => value >= 0 ? 'rgba(59, 130, 246, 1)' : 'rgba(239, 68, 68, 1)');
+
+
+            winLossChart = new Chart(winLossChartCanvas, {
+                type: 'bar', // Bar chart for win/loss over periods
+                data: {
+                    labels: chartLabels, // These are now month names or day numbers/dates
+                    datasets: [{
+                        label: `Resultat (${displaySymbol})`,
+                        data: chartData, // This is now an array of results per sub-period
+                        backgroundColor: backgroundColors,
+                        borderColor: borderColors,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: `Resultat (${displaySymbol})`
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: chartXAxisLabel // Dynamically set x-axis title
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false // No need for legend with single dataset
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += new Intl.NumberFormat('sv-SE', { style: 'currency', currency: displayCurrencySelect.value }).format(context.parsed.y);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Update button active states
+            periodSelectWeekBtn.classList.remove('btn-primary');
+            periodSelectWeekBtn.classList.add('btn-secondary');
+            periodSelectMonthBtn.classList.remove('btn-primary');
+            periodSelectMonthBtn.classList.add('btn-secondary');
+            periodSelectYearBtn.classList.remove('btn-primary');
+            periodSelectYearBtn.classList.add('btn-secondary');
+
+            if (periodType === 'week') {
+                periodSelectWeekBtn.classList.remove('btn-secondary');
+                periodSelectWeekBtn.classList.add('btn-primary');
+            } else if (periodType === 'month') {
+                periodSelectMonthBtn.classList.remove('btn-secondary');
+                periodSelectMonthBtn.classList.add('btn-primary');
+            } else if (periodType === 'year') {
+                periodSelectYearBtn.classList.remove('btn-secondary');
+                periodSelectYearBtn.classList.add('btn-primary');
+            }
+        }
+
+        // Function to navigate between periods
+        function navigatePeriod(direction) {
+            let year;
+            let periodSpecific;
+
+            if (currentDisplayPeriod.type === 'year') {
+                year = Number(currentDisplayPeriod.value);
+                const newYear = year + (direction === 'next' ? 1 : -1);
+                currentDisplayPeriod.value = `${newYear}`;
+            } else if (currentDisplayPeriod.type === 'month') {
+                [year, periodSpecific] = currentDisplayPeriod.value.split('-').map(Number);
+                let newMonth = periodSpecific + (direction === 'next' ? 1 : -1);
+                let newYear = year;
+                if (newMonth > 12) {
+                    newMonth = 1;
+                    newYear++;
+                } else if (newMonth < 1) {
+                    newMonth = 12;
+                    newYear--;
+                }
+                currentDisplayPeriod.value = `${newYear}-${String(newMonth).padStart(2, '0')}`;
+            } else if (currentDisplayPeriod.type === 'week') {
+                [year, periodSpecific] = currentDisplayPeriod.value.split('-W').map(Number);
+                let tempDate = getDateOfISOWeek(periodSpecific, year); // Get the Monday of the current week
+
+                if (direction === 'next') {
+                    tempDate.setDate(tempDate.getDate() + 7); // Move to next week's Monday
+                } else {
+                    tempDate.setDate(tempDate.getDate() - 7); // Move to previous week's Monday
+                }
+                
+                const newWeek = getWeekNumber(tempDate); // Get the ISO week number for the new date
+                const newYear = tempDate.getFullYear(); // Get the year for the new date
+                currentDisplayPeriod.value = `${newYear}-W${String(newWeek).padStart(2, '0')}`;
+            }
+
+            updateHistoryAndGraph(currentDisplayPeriod.type, currentDisplayPeriod.value);
+        }
+
+
+        // Event listeners
+        window.onload = () => {
+            // Assign element references here when DOM is ready
+            userIdDisplay = document.getElementById('userIdDisplay');
+            newClientNameInput = document.getElementById('newClientName');
+            newClientCurrencySelect = document.getElementById('newClientCurrency');
+            newClientBalanceInput = document.getElementById('newClientBalance');
+            addClientBtn = document.getElementById('addClientBtn');
+            clientListDiv = document.getElementById('clientList');
+            noClientsMessage = document.getElementById('noClientsMessage');
+            sessionClientSelectAdd = document.getElementById('sessionClientSelectAdd');
+            addClientToSessionBtn = document.getElementById('addClientToSessionBtn');
+            dynamicClientBalanceInputsDiv = document.getElementById('dynamicClientBalanceInputs');
+            sessionNotesInput = document.getElementById('sessionNotes');
+            addSessionBtn = document.getElementById('addSessionBtn');
+            totalWinLossDisplay = document.getElementById('totalWinLoss');
+            totalSessionsDisplay = document.getElementById('totalSessions');
+            sessionListTableBody = document.getElementById('sessionListTableBody');
+            noSessionsMessage = document.getElementById('noSessionsMessage');
+            toggleSessionBtn = document.getElementById('toggleSessionBtn');
+            sessionTimerDisplay = document.getElementById('sessionTimerDisplay');
+            displayCurrencySelect = document.getElementById('displayCurrency');
+            totalBankrollDisplay = document.getElementById('totalBankrollDisplay'); // For settings view
+            totalBankrollDisplaySessionView = document.getElementById('totalBankrollDisplaySessionView'); // For session tracker view
+            manualBankrollInput = document.getElementById('manualBankrollInput');
+            updateManualBankrollBtn = document.getElementById('updateManualBankrollBtn');
+            sessionStartTimeInput = document.getElementById('sessionStartTime'); 
+            sessionEndTimeInput = document.getElementById('sessionEndTime');   
+
+            // New elements for navigation
+            sessionTrackerNavBtn = document.getElementById('sessionTrackerNavBtn');
+            historyAndGraphsNavBtn = document.getElementById('historyAndGraphsNavBtn'); // New nav button
+            settingsNavBtn = document.getElementById('settingsNavBtn');
+            sessionTrackerView = document.getElementById('sessionTrackerView');
+            historyAndGraphsView = document.getElementById('historyAndGraphsView'); // New view
+            settingsView = document.getElementById('settingsView');
+
+            // Custom Confirmation Modal elements
+            customConfirmModal = document.getElementById('customConfirmModal');
+            confirmMessage = document.getElementById('confirmMessage');
+            confirmOkBtn = document.getElementById('confirmOkBtn');
+            confirmCancelBtn = document.getElementById('confirmCancelBtn');
+
+            // End Session Confirmation Modal elements (for Add Session button)
+            endSessionConfirmModal = document.getElementById('endSessionConfirmModal');
+            endSessionClientInputs = document.getElementById('endSessionClientInputs');
+            endSessionSaveBtn = document.getElementById('endSessionSaveBtn');
+            endSessionCancelBtn = document.getElementById('endSessionCancelBtn');
+
+            // Start Session Client Selection Modal elements
+            startSessionClientSelectModal = document.getElementById('startSessionClientSelectModal');
+            startSessionClientList = document.getElementById('startSessionClientList');
+            startSessionModalStartBtn = document.getElementById('startSessionModalStartBtn');
+            startSessionModalCancelBtn = document.getElementById('startSessionModalCancelBtn'); 
+            startSessionModalSelectAllBtn = document.getElementById('startSessionModalSelectAllBtn'); // New button
+
+            // Stop Session Confirmation Modal elements (for Toggle Session button)
+            stopSessionConfirmModal = document.getElementById('stopSessionConfirmModal');
+            stopSessionClientInputs = document.getElementById('stopSessionClientInputs');
+            stopSessionSaveBtn = document.getElementById('stopSessionSaveBtn');
+            stopSessionJustStopBtn = document.getElementById('stopSessionJustStopBtn');
+
+            // History and Graphs elements
+            periodSelectWeekBtn = document.getElementById('periodSelectWeek');
+            periodSelectMonthBtn = document.getElementById('periodSelectMonth');
+            periodSelectYearBtn = document.getElementById('periodSelectYear');
+            historyPeriodDisplay = document.getElementById('historyPeriodDisplay');
+            historyTotalSessions = document.getElementById('historyTotalSessions');
+            historyTotalHours = document.getElementById('historyTotalHours'); // Get new element reference
+            historyTotalWinLoss = document.getElementById('historyTotalWinLoss');
+            historyCalculatedHourlyWage = document.getElementById('historyCalculatedHourlyWage'); // Get new element reference
+            winLossChartCanvas = document.getElementById('winLossChart');
+            prevPeriodBtn = document.getElementById('prevPeriodBtn'); // New navigation button
+            nextPeriodBtn = document.getElementById('nextPeriodBtn'); // New navigation button
+
+
+            // Set default values for time fields to current time on page load
+            const now = new Date();
+            const offset = now.getTimezoneOffset() * 60000; // offset in milliseconds
+            const localISOTime = (new Date(now - offset)).toISOString().slice(0, 16);
+            sessionStartTimeInput.value = localISOTime;
+            sessionEndTimeInput.value = localISOTime;
+
+            // Set initial history period to current month
+            currentDisplayPeriod.type = 'month';
+            currentDisplayPeriod.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+            initializeFirebase(); // Firebase initialization is now called
+
+            // Add event listeners
+            addClientBtn.addEventListener('click', addClient);
+            addSessionBtn.addEventListener('click', handleAddSessionClick); // Changed to new handler
+            toggleSessionBtn.addEventListener('click', toggleSession); // This will now trigger the client selection modal
+
+            // Event listener to add client(s) to session form
+            addClientToSessionBtn.addEventListener('click', () => {
+                const selectedValue = sessionClientSelectAdd.value;
+                if (selectedValue === "all_clients") {
+                    // Add all clients to the sessionClientsInForm array
+                    clientsData.forEach(client => {
+                        if (!sessionClientsInForm.includes(client.id)) {
+                            sessionClientsInForm.push(client.id);
+                        }
+                    });
+                    showMessage("Alla klienter tillagda i sessionen.");
+                } else if (selectedValue && !sessionClientsInForm.includes(selectedValue)) {
+                    // Add a single selected client
+                    sessionClientsInForm.push(selectedValue);
+                    showMessage("Vald klient tillagd i sessionen.");
+                } else if (sessionClientsInForm.includes(selectedValue)) { // If a single client was selected but already added
+                    showMessage("Denna klient är redan tillagd i sessionen.", "info");
+                }
+                renderDynamicBalanceInputs();
+                sessionClientSelectAdd.value = ""; // Clear selection in dropdown
+            });
+
+            displayCurrencySelect.addEventListener('change', () => {
+                updateStatistics(); // Update statistics on currency change
+                updateTotalBankrollDisplay(); // Update bankroll on currency change
+                // Also update history graph if it's visible
+                if (!historyAndGraphsView.classList.contains('hidden-view')) {
+                    updateHistoryAndGraph(currentDisplayPeriod.type, currentDisplayPeriod.value);
+                }
+            });
+            updateManualBankrollBtn.addEventListener('click', updateManualBankroll); // Listen for manual bankroll update
+
+            // Initial page display
+            showPage('sessionTracker');
+            sessionTrackerNavBtn.addEventListener('click', () => showPage('sessionTracker'));
+            historyAndGraphsNavBtn.addEventListener('click', () => showPage('historyAndGraphs')); // New nav button listener
+            settingsNavBtn.addEventListener('click', () => showPage('settings'));
+
+            // History period selection listeners
+            periodSelectWeekBtn.addEventListener('click', () => {
+                currentDisplayPeriod.type = 'week';
+                const now = new Date();
+                currentDisplayPeriod.value = `${now.getFullYear()}-W${String(getWeekNumber(now)).padStart(2, '0')}`;
+                updateHistoryAndGraph(currentDisplayPeriod.type, currentDisplayPeriod.value);
+            });
+            periodSelectMonthBtn.addEventListener('click', () => {
+                currentDisplayPeriod.type = 'month';
+                const now = new Date();
+                currentDisplayPeriod.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+                updateHistoryAndGraph(currentDisplayPeriod.type, currentDisplayPeriod.value);
+            });
+            periodSelectYearBtn.addEventListener('click', () => {
+                currentDisplayPeriod.type = 'year';
+                const now = new Date();
+                currentDisplayPeriod.value = `${now.getFullYear()}`;
+                updateHistoryAndGraph(currentDisplayPeriod.type, currentDisplayPeriod.value);
+            });
+
+            // Period navigation buttons
+            prevPeriodBtn.addEventListener('click', () => navigatePeriod('prev'));
+            nextPeriodBtn.addEventListener('click', () => navigatePeriod('next'));
+        };
+
     </script>
 </body>
 </html>
