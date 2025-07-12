@@ -109,184 +109,208 @@
         <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">PokerJournalen</h1>
         <p class="text-center text-sm text-gray-600 mb-6">Din användar-ID: <span id="userIdDisplay" class="font-mono text-blue-600">Laddar...</span></p>
 
-        <!-- Navigation -->
-        <div class="flex justify-center gap-4 mb-6">
-            <button id="sessionTrackerNavBtn" class="btn btn-primary">Sessionsöversikt</button>
-            <button id="historyAndGraphsNavBtn" class="btn btn-secondary">Historik och Grafer</button>
-            <button id="settingsNavBtn" class="btn btn-secondary">Inställningar</button>
-        </div>
-
-        <!-- Session Tracker View -->
-        <div id="sessionTrackerView">
-            <!-- Ongoing Session Management -->
+        <!-- Authentication View -->
+        <div id="authView" class="hidden-view">
             <div class="card">
-                <h2 class="text-2xl font-semibold mb-4 text-gray-700">Pågående Session</h2>
-                <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4">
-                    <button id="toggleSessionBtn" class="btn btn-primary w-full sm:w-auto rounded-lg">Starta Session</button>
-                    <p id="sessionTimerDisplay" class="text-2xl font-bold text-gray-800 flex-grow text-center sm:text-right">00:00:00</p>
-                </div>
-            </div>
-
-            <!-- Add New Session Form -->
-            <div class="card">
-                <h2 class="text-2xl font-semibold mb-4 text-gray-700">Lägg till Ny Session</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label for="sessionStartTime" class="block text-sm font-medium text-gray-700 mb-1">Starttid:</label>
-                        <input type="datetime-local" id="sessionStartTime" class="input-field rounded-lg" />
-                    </div>
-                    <div>
-                        <label for="sessionEndTime" class="block text-sm font-medium text-gray-700 mb-1">Sluttid:</label>
-                        <input type="datetime-local" id="sessionEndTime" class="input-field rounded-lg" />
-                    </div>
-                    <div class="md:col-span-2 flex flex-col sm:flex-row gap-2 items-end">
-                        <div class="flex-grow">
-                            <label for="sessionClientSelectAdd" class="block text-sm font-medium text-gray-700 mb-1">Välj Pokerklient att lägga till:</label>
-                            <select id="sessionClientSelectAdd" class="input-field rounded-lg w-full">
-                                <option value="">Välj klient</option>
-                                <option value="all_clients">Lägg till alla klienter</option>
-                                <!-- Klienter laddas dynamiskt här -->
-                            </select>
-                        </div>
-                        <button id="addClientToSessionBtn" class="btn btn-secondary rounded-lg w-full sm:w-auto mt-2 sm:mt-0">Lägg till vald klient</button>
-                    </div>
-                    <div id="dynamicClientBalanceInputs" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 md:col-span-2">
-                        <!-- Dynamiska saldo-fält för valda klienter kommer att infogas här -->
-                    </div>
-                    <div class="md:col-span-2">
-                        <label for="sessionNotes" class="block text-sm font-medium text-gray-700 mb-1">Anteckningar:</label>
-                        <textarea id="sessionNotes" rows="3" placeholder="Anteckningar om sessionen..." class="input-field rounded-lg"></textarea>
-                    </div>
-                </div>
-                <button id="addSessionBtn" class="btn btn-primary w-full rounded-lg">Lägg till Session</button>
-            </div>
-
-            <!-- Statistics Overview -->
-            <div class="card">
-                <h2 class="text-2xl font-semibold mb-4 text-gray-700">Statistiköversikt</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-center">
-                    <div class="bg-blue-50 p-4 rounded-lg shadow-sm">
-                        <p class="text-sm font-medium text-gray-600">Total Vinst/Förlust</p>
-                        <p id="totalWinLoss" class="text-3xl font-bold text-blue-700 mt-1">0.00 kr</p>
-                    </div>
-                    <div class="bg-green-50 p-4 rounded-lg shadow-sm">
-                        <p class="text-sm font-medium text-gray-600">Antal Sessioner</p>
-                        <p id="totalSessions" class="text-3xl font-bold text-green-700 mt-1">0</p>
-                    </div>
-                    <div class="bg-blue-50 p-4 rounded-lg shadow-sm col-span-full">
-                        <p class="text-sm font-medium text-gray-600">Nuvarande Bankrulle</p>
-                        <p id="totalBankrollDisplaySessionView" class="text-3xl font-bold text-blue-700 mt-1">0.00 kr</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Latest Sessions List -->
-            <div class="card">
-                <h2 class="2xl font-semibold mb-4 text-gray-700">Dina Senaste Sessioner</h2>
-                <div class="overflow-x-auto rounded-lg shadow-md">
-                    <table class="min-w-full bg-white rounded-lg">
-                        <thead>
-                            <tr class="table-header">
-                                <th>Datum</th>
-                                <th>Klienter (Vinst/Förlust)</th>
-                                <th>Total Vinst/Förlust</th>
-                                <th>Anteckningar</th>
-                                <th>Åtgärder</th>
-                            </tr>
-                        </thead>
-                        <tbody id="sessionListTableBody">
-                            <!-- Sessioner kommer att laddas här -->
-                            <tr>
-                                <td colspan="5" class="text-center py-4 text-gray-500" id="noSessionsMessage">Inga sessioner tillagda ännu.</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- History and Graphs View -->
-        <div id="historyAndGraphsView" class="hidden-view">
-            <div class="card">
-                <h2 class="text-2xl font-semibold mb-4 text-gray-700">Historik och Grafer</h2>
-                <div class="flex justify-center gap-4 mb-6">
-                    <button id="periodSelectWeek" class="btn btn-secondary btn-small">Vecka</button>
-                    <button id="periodSelectMonth" class="btn btn-primary btn-small">Månad</button>
-                    <button id="periodSelectYear" class="btn btn-secondary btn-small">År</button>
-                </div>
-
-                <div class="flex justify-between items-center mb-4">
-                    <button id="prevPeriodBtn" class="btn btn-secondary btn-small">&lt; Föregående</button>
-                    <p id="historyPeriodDisplay" class="text-xl font-bold text-gray-800">Nuvarande Månad</p>
-                    <button id="nextPeriodBtn" class="btn btn-secondary btn-small">Nästa &gt;</button>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-center mb-6">
-                    <div class="bg-blue-50 p-4 rounded-lg shadow-sm">
-                        <p class="text-sm font-medium text-gray-600">Antal Sessioner</p>
-                        <p id="historyTotalSessions" class="text-2xl font-bold text-green-700 mt-1">0</p>
-                    </div>
-                    <div class="bg-blue-50 p-4 rounded-lg shadow-sm">
-                        <p class="text-sm font-medium text-gray-600">Spelade Timmar</p>
-                        <p id="historyTotalHours" class="text-2xl font-bold text-blue-700 mt-1">0.0 timmar</p>
-                    </div>
-                    <div class="bg-blue-50 p-4 rounded-lg shadow-sm">
-                        <p class="text-sm font-medium text-gray-600">Resultat</p>
-                        <p id="historyTotalWinLoss" class="text-3xl font-bold text-blue-700 mt-1">0.00 kr</p>
-                    </div>
-                    <div class="bg-blue-50 p-4 rounded-lg shadow-sm md:col-span-3">
-                        <p class="text-sm font-medium text-gray-600">Beräknad Timlön</p>
-                        <p id="historyCalculatedHourlyWage" class="text-2xl font-bold text-blue-700 mt-1">0.00 kr/timme</p>
-                    </div>
-                </div>
-
-                <div class="bg-white p-4 rounded-lg shadow-md">
-                    <canvas id="winLossChart"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- Settings View -->
-        <div id="settingsView" class="hidden-view">
-            <!-- Poker Client Management -->
-            <div class="card">
-                <h2 class="text-2xl font-semibold mb-4 text-gray-700">Hantera Pokerklienter</h2>
-                <div class="flex flex-col sm:flex-row gap-4 mb-4">
-                    <input type="text" id="newClientName" placeholder="Ny klientnamn (t.ex. PokerStars)" class="input-field flex-grow rounded-lg" />
-                    <select id="newClientCurrency" class="input-field w-full sm:w-auto rounded-lg">
-                        <option value="USD">USD ($)</option>
-                        <option value="EUR">EUR (€)</option>
-                        <option value="SEK">SEK (kr)</option>
-                    </select>
-                    <input type="number" id="newClientBalance" placeholder="Nuvarande Saldo (t.ex. 500)" class="input-field flex-grow rounded-lg" />
-                    <button id="addClientBtn" class="btn btn-primary rounded-lg">Lägg till Klient</button>
-                </div>
-                <div id="clientList" class="grid grid-cols-1 gap-3">
-                    <!-- Klienter kommer att laddas här -->
-                    <p id="noClientsMessage" class="text-gray-500 col-span-full">Inga klienter tillagda ännu.</p>
-                </div>
-            </div>
-
-            <!-- Total Bankroll Management (Moved to Settings) -->
-            <div class="card">
-                <h2 class="text-2xl font-semibold mb-4 text-gray-700">Hantera Total Bankrulle</h2>
-                <div class="flex flex-col sm:flex-row gap-4 items-center">
-                    <p class="text-xl font-bold text-gray-800">Nuvarande Bankrulle: <span id="totalBankrollDisplay" class="text-blue-700">0.00 kr</span></p>
-                    <input type="number" id="manualBankrollInput" placeholder="Ange manuell bankrulle" class="input-field flex-grow rounded-lg" />
-                    <button id="updateManualBankrollBtn" class="btn btn-secondary rounded-lg">Uppdatera Bankrulle</button>
-                </div>
-            </div>
-
-            <!-- Display Currency Setting -->
-            <div class="card">
-                <h2 class="text-2xl font-semibold mb-4 text-gray-700">Visningsvaluta</h2>
+                <h2 class="text-2xl font-semibold mb-4 text-gray-700">Logga in eller Registrera dig</h2>
                 <div class="mb-4">
-                    <label for="displayCurrency" class="block text-sm font-medium text-gray-700 mb-1">Visa statistik i:</label>
-                    <select id="displayCurrency" class="input-field w-full sm:w-auto rounded-lg">
-                        <option value="USD">USD ($)</option>
-                        <option value="EUR">EUR (€)</option>
-                        <option value="SEK" selected>SEK (kr)</option>
-                    </select>
+                    <label for="authEmail" class="block text-sm font-medium text-gray-700 mb-1">E-post:</label>
+                    <input type="email" id="authEmail" placeholder="din.email@exempel.com" class="input-field rounded-lg" />
+                </div>
+                <div class="mb-6">
+                    <label for="authPassword" class="block text-sm font-medium text-gray-700 mb-1">Lösenord:</label>
+                    <input type="password" id="authPassword" placeholder="********" class="input-field rounded-lg" />
+                </div>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <button id="registerBtn" class="btn btn-primary flex-grow rounded-lg">Registrera</button>
+                    <button id="loginBtn" class="btn btn-secondary flex-grow rounded-lg">Logga in</button>
+                </div>
+                <p id="authMessage" class="text-center text-red-500 mt-4"></p>
+            </div>
+        </div>
+
+        <!-- Main Application View -->
+        <div id="mainAppView" class="hidden-view">
+            <!-- Navigation -->
+            <div class="flex justify-center gap-4 mb-6">
+                <button id="sessionTrackerNavBtn" class="btn btn-primary">Sessionsöversikt</button>
+                <button id="historyAndGraphsNavBtn" class="btn btn-secondary">Historik och Grafer</button>
+                <button id="settingsNavBtn" class="btn btn-secondary">Inställningar</button>
+                <button id="logoutBtn" class="btn btn-danger">Logga ut</button>
+            </div>
+
+            <!-- Session Tracker View -->
+            <div id="sessionTrackerView">
+                <!-- Ongoing Session Management -->
+                <div class="card">
+                    <h2 class="text-2xl font-semibold mb-4 text-gray-700">Pågående Session</h2>
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4">
+                        <button id="toggleSessionBtn" class="btn btn-primary w-full sm:w-auto rounded-lg">Starta Session</button>
+                        <p id="sessionTimerDisplay" class="text-2xl font-bold text-gray-800 flex-grow text-center sm:text-right">00:00:00</p>
+                    </div>
+                </div>
+
+                <!-- Add New Session Form -->
+                <div class="card">
+                    <h2 class="text-2xl font-semibold mb-4 text-gray-700">Lägg till Ny Session</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label for="sessionStartTime" class="block text-sm font-medium text-gray-700 mb-1">Starttid:</label>
+                            <input type="datetime-local" id="sessionStartTime" class="input-field rounded-lg" />
+                        </div>
+                        <div>
+                            <label for="sessionEndTime" class="block text-sm font-medium text-gray-700 mb-1">Sluttid:</label>
+                            <input type="datetime-local" id="sessionEndTime" class="input-field rounded-lg" />
+                        </div>
+                        <div class="md:col-span-2 flex flex-col sm:flex-row gap-2 items-end">
+                            <div class="flex-grow">
+                                <label for="sessionClientSelectAdd" class="block text-sm font-medium text-gray-700 mb-1">Välj Pokerklient att lägga till:</label>
+                                <select id="sessionClientSelectAdd" class="input-field rounded-lg w-full">
+                                    <option value="">Välj klient</option>
+                                    <option value="all_clients">Lägg till alla klienter</option>
+                                    <!-- Klienter laddas dynamiskt här -->
+                                </select>
+                            </div>
+                            <button id="addClientToSessionBtn" class="btn btn-secondary rounded-lg w-full sm:w-auto mt-2 sm:mt-0">Lägg till vald klient</button>
+                        </div>
+                        <div id="dynamicClientBalanceInputs" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 md:col-span-2">
+                            <!-- Dynamiska saldo-fält för valda klienter kommer att infogas här -->
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="sessionNotes" class="block text-sm font-medium text-gray-700 mb-1">Anteckningar:</label>
+                            <textarea id="sessionNotes" rows="3" placeholder="Anteckningar om sessionen..." class="input-field rounded-lg"></textarea>
+                        </div>
+                    </div>
+                    <button id="addSessionBtn" class="btn btn-primary w-full rounded-lg">Lägg till Session</button>
+                </div>
+
+                <!-- Statistics Overview -->
+                <div class="card">
+                    <h2 class="text-2xl font-semibold mb-4 text-gray-700">Statistiköversikt</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-center">
+                        <div class="bg-blue-50 p-4 rounded-lg shadow-sm">
+                            <p class="text-sm font-medium text-gray-600">Total Vinst/Förlust</p>
+                            <p id="totalWinLoss" class="text-3xl font-bold text-blue-700 mt-1">0.00 kr</p>
+                        </div>
+                        <div class="bg-green-50 p-4 rounded-lg shadow-sm">
+                            <p class="text-sm font-medium text-gray-600">Antal Sessioner</p>
+                            <p id="totalSessions" class="text-3xl font-bold text-green-700 mt-1">0</p>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-lg shadow-sm col-span-full">
+                            <p class="text-sm font-medium text-gray-600">Nuvarande Bankrulle</p>
+                            <p id="totalBankrollDisplaySessionView" class="text-3xl font-bold text-blue-700 mt-1">0.00 kr</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Latest Sessions List -->
+                <div class="card">
+                    <h2 class="2xl font-semibold mb-4 text-gray-700">Dina Senaste Sessioner</h2>
+                    <div class="overflow-x-auto rounded-lg shadow-md">
+                        <table class="min-w-full bg-white rounded-lg">
+                            <thead>
+                                <tr class="table-header">
+                                    <th>Datum</th>
+                                    <th>Klienter (Vinst/Förlust)</th>
+                                    <th>Total Vinst/Förlust</th>
+                                    <th>Anteckningar</th>
+                                    <th>Åtgärder</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sessionListTableBody">
+                                <!-- Sessioner kommer att laddas här -->
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-gray-500" id="noSessionsMessage">Inga sessioner tillagda ännu.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History and Graphs View -->
+            <div id="historyAndGraphsView" class="hidden-view">
+                <div class="card">
+                    <h2 class="text-2xl font-semibold mb-4 text-gray-700">Historik och Grafer</h2>
+                    <div class="flex justify-center gap-4 mb-6">
+                        <button id="periodSelectWeek" class="btn btn-secondary btn-small">Vecka</button>
+                        <button id="periodSelectMonth" class="btn btn-primary btn-small">Månad</button>
+                        <button id="periodSelectYear" class="btn btn-secondary btn-small">År</button>
+                    </div>
+
+                    <div class="flex justify-between items-center mb-4">
+                        <button id="prevPeriodBtn" class="btn btn-secondary btn-small">&lt; Föregående</button>
+                        <p id="historyPeriodDisplay" class="text-xl font-bold text-gray-800">Nuvarande Månad</p>
+                        <button id="nextPeriodBtn" class="btn btn-secondary btn-small">Nästa &gt;</button>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-center mb-6">
+                        <div class="bg-blue-50 p-4 rounded-lg shadow-sm">
+                            <p class="text-sm font-medium text-gray-600">Antal Sessioner</p>
+                            <p id="historyTotalSessions" class="text-2xl font-bold text-green-700 mt-1">0</p>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-lg shadow-sm">
+                            <p class="text-sm font-medium text-gray-600">Spelade Timmar</p>
+                            <p id="historyTotalHours" class="text-2xl font-bold text-blue-700 mt-1">0.0 timmar</p>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-lg shadow-sm">
+                            <p class="text-sm font-medium text-gray-600">Resultat</p>
+                            <p id="historyTotalWinLoss" class="text-3xl font-bold text-blue-700 mt-1">0.00 kr</p>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-lg shadow-sm md:col-span-3">
+                            <p class="text-sm font-medium text-gray-600">Beräknad Timlön</p>
+                            <p id="historyCalculatedHourlyWage" class="text-2xl font-bold text-blue-700 mt-1">0.00 kr/timme</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-lg shadow-md">
+                        <canvas id="winLossChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings View -->
+            <div id="settingsView" class="hidden-view">
+                <!-- Poker Client Management -->
+                <div class="card">
+                    <h2 class="text-2xl font-semibold mb-4 text-gray-700">Hantera Pokerklienter</h2>
+                    <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                        <input type="text" id="newClientName" placeholder="Ny klientnamn (t.ex. PokerStars)" class="input-field flex-grow rounded-lg" />
+                        <select id="newClientCurrency" class="input-field w-full sm:w-auto rounded-lg">
+                            <option value="USD">USD ($)</option>
+                            <option value="EUR">EUR (€)</option>
+                            <option value="SEK">SEK (kr)</option>
+                        </select>
+                        <input type="number" id="newClientBalance" placeholder="Nuvarande Saldo (t.ex. 500)" class="input-field flex-grow rounded-lg" />
+                        <button id="addClientBtn" class="btn btn-primary rounded-lg">Lägg till Klient</button>
+                    </div>
+                    <div id="clientList" class="grid grid-cols-1 gap-3">
+                        <!-- Klienter kommer att laddas här -->
+                        <p id="noClientsMessage" class="text-gray-500 col-span-full">Inga klienter tillagda ännu.</p>
+                    </div>
+                </div>
+
+                <!-- Total Bankroll Management (Moved to Settings) -->
+                <div class="card">
+                    <h2 class="text-2xl font-semibold mb-4 text-gray-700">Hantera Total Bankrulle</h2>
+                    <div class="flex flex-col sm:flex-row gap-4 items-center">
+                        <p class="text-xl font-bold text-gray-800">Nuvarande Bankrulle: <span id="totalBankrollDisplay" class="text-blue-700">0.00 kr</span></p>
+                        <input type="number" id="manualBankrollInput" placeholder="Ange manuell bankrulle" class="input-field flex-grow rounded-lg" />
+                        <button id="updateManualBankrollBtn" class="btn btn-secondary rounded-lg">Uppdatera Bankrulle</button>
+                    </div>
+                </div>
+
+                <!-- Display Currency Setting -->
+                <div class="card">
+                    <h2 class="text-2xl font-semibold mb-4 text-gray-700">Visningsvaluta</h2>
+                    <div class="mb-4">
+                        <label for="displayCurrency" class="block text-sm font-medium text-gray-700 mb-1">Visa statistik i:</label>
+                        <select id="displayCurrency" class="input-field w-full sm:w-auto rounded-lg">
+                            <option value="USD">USD ($)</option>
+                            <option value="EUR">EUR (€)</option>
+                            <option value="SEK" selected>SEK (kr)</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>
@@ -387,7 +411,7 @@
         let sessionClientsInForm = []; // Keeps track of which clients are added to the form
 
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, collection, addDoc, setDoc, deleteDoc, onSnapshot, query, orderBy, updateDoc, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Global variables for Firebase instances
@@ -495,6 +519,16 @@
             value: '' // e.g., '2024-07', '2024-W28', '2024'
         };
 
+        // Authentication elements
+        let authView;
+        let mainAppView;
+        let authEmailInput;
+        let authPasswordInput;
+        let registerBtn;
+        let loginBtn;
+        let logoutBtn;
+        let authMessage;
+
 
         // Get app ID and Firebase configuration from the global environment
         // FÖR GITHUB PAGES: ERSÄTT DENNA MED DIN EGEN FIREBASE-KONFIGURATION!
@@ -522,7 +556,9 @@
             }
         } else {
             // Detta är din Firebase-konfiguration.
-            // ERSÄTT ALLT INOM DE HÄR MÅSPARANTESERNA {} MED DIN RIKTIGA KONFIGURATION!
+            // SE TILL ATT ANONYM AUTENTISERING ÄR AKTIVERAD I FIREBASE KONSOLEN (Authentication -> Sign-in method -> Anonymous)
+            // SE TILL ATT EMAIL/PASSWORD AUTENTISERING ÄR AKTIVERAD I FIREBASE KONSOLEN (Authentication -> Sign-in method -> Email/Password)
+            // SE TILL ATT DIN GITHUB PAGES DOMÄN ÄR TILLAGD SOM EN AUKTORISERAD DOMÄN I FIREBASE KONSOLEN (Authentication -> Settings -> Authorized domains)
             firebaseConfigValue = {
                 apiKey: "AIzaSyAWzGImBK-OaBzGCyUDigeHNNThEyB0l-g",
                 authDomain: "pokerjournalen.firebaseapp.com",
@@ -559,6 +595,12 @@
         function showMessage(message, type = 'info') {
             console.log(`Meddelande (${type}): ${message}`);
             // For a more robust solution, create a modal or a temporary message box
+            authMessage.textContent = message; // Display messages in the auth message area
+            authMessage.className = `text-center mt-4 ${type === 'error' ? 'text-red-500' : 'text-green-500'}`;
+            setTimeout(() => {
+                authMessage.textContent = '';
+                authMessage.className = `text-center mt-4`;
+            }, 5000); // Clear message after 5 seconds
         }
 
         // Custom confirmation function (replaces window.confirm)
@@ -822,7 +864,9 @@
                 if (initialAuthToken) {
                     await signInWithCustomToken(auth, initialAuthToken);
                 } else {
-                    await signInAnonymously(auth);
+                    // We will handle anonymous sign-in via onAuthStateChanged if no user is found
+                    // or if they explicitly choose to proceed anonymously later (not implemented yet).
+                    // For now, the auth view will be shown by default.
                 }
 
                 // Listen for authentication status changes
@@ -831,14 +875,24 @@
                         userId = user.uid;
                         userIdDisplay.textContent = userId;
                         console.log("Användare inloggad:", userId);
+                        updateUIForAuthState(true); // Show main app
                         // Start listeners for data when user is logged in
                         setupFirestoreListeners();
                     } else {
-                        // If no user is logged in (e.g., error with token), use a random ID
-                        userId = crypto.randomUUID();
-                        userIdDisplay.textContent = userId + " (Anonym)";
-                        console.log("Användare inte inloggad, använder anonym ID:", userId);
-                        setupFirestoreListeners(); // Continue with anonymous ID
+                        // If no user is logged in (e.g., error with token, or logged out), show auth view
+                        userId = crypto.randomUUID(); // Fallback to a random ID for anonymous operations if any
+                        userIdDisplay.textContent = userId + " (Anonym)"; // Will be hidden by authView
+                        console.log("Användare inte inloggad, visar autentiseringsvy.");
+                        updateUIForAuthState(false); // Show auth view
+                        // Clear any existing listeners or data if switching from logged-in to logged-out
+                        // (This is important to prevent data from previous user showing)
+                        clientsData = [];
+                        sessionsData = [];
+                        clientListDiv.innerHTML = '<p id="noClientsMessage" class="text-gray-500 col-span-full">Inga klienter tillagda ännu.</p>';
+                        sessionListTableBody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-gray-500" id="noSessionsMessage">Inga sessioner tillagda ännu.</td></tr>';
+                        updateStatistics();
+                        updateTotalBankrollDisplay();
+                        if (winLossChart) winLossChart.destroy();
                     }
                 });
 
@@ -848,14 +902,82 @@
                 // Fallback to random ID if authentication fails
                 userId = crypto.randomUUID();
                 userIdDisplay.textContent = userId + " (Anonym - Fel vid inloggning)";
-                setupFirestoreListeners();
+                updateUIForAuthState(false); // Ensure auth view is shown on error
             }
         }
 
+        // Function to update UI based on authentication state
+        function updateUIForAuthState(loggedIn) {
+            if (loggedIn) {
+                authView.classList.add('hidden-view');
+                mainAppView.classList.remove('hidden-view');
+            } else {
+                authView.classList.remove('hidden-view');
+                mainAppView.classList.add('hidden-view');
+            }
+        }
+
+        // Function to register a new user
+        async function registerUser() {
+            const email = authEmailInput.value;
+            const password = authPasswordInput.value;
+
+            if (!email || !password) {
+                showMessage("Vänligen ange både e-post och lösenord.", "error");
+                return;
+            }
+            if (password.length < 6) {
+                showMessage("Lösenordet måste vara minst 6 tecken långt.", "error");
+                return;
+            }
+
+            try {
+                await createUserWithEmailAndPassword(auth, email, password);
+                showMessage("Registrering lyckades! Du är nu inloggad.", "success");
+                // onAuthStateChanged will handle UI update
+            } catch (error) {
+                console.error("Fel vid registrering:", error);
+                showMessage(`Fel vid registrering: ${error.message}`, "error");
+            }
+        }
+
+        // Function to login an existing user
+        async function loginUser() {
+            const email = authEmailInput.value;
+            const password = authPasswordInput.value;
+
+            if (!email || !password) {
+                showMessage("Vänligen ange både e-post och lösenord.", "error");
+                return;
+            }
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                showMessage("Inloggning lyckades!", "success");
+                // onAuthStateChanged will handle UI update
+            } catch (error) {
+                console.error("Fel vid inloggning:", error);
+                showMessage(`Fel vid inloggning: ${error.message}`, "error");
+            }
+        }
+
+        // Function to log out the current user
+        async function logoutUser() {
+            try {
+                await signOut(auth);
+                showMessage("Du har loggats ut.", "info");
+                // onAuthStateChanged will handle UI update
+            } catch (error) {
+                console.error("Fel vid utloggning:", error);
+                showMessage(`Fel vid utloggning: ${error.message}`, "error");
+            }
+        }
+
+
         // Function to set up Firestore listeners
         function setupFirestoreListeners() {
-            if (!db || !userId) {
-                console.warn("Firestore eller användar-ID är inte redo.");
+            if (!db || !userId || userId === 'anonymous') { // Ensure we have a proper authenticated userId
+                console.warn("Firestore eller användar-ID är inte redo för att sätta upp lyssnare, eller användaren är anonym.");
                 return;
             }
 
@@ -1968,6 +2090,15 @@
             historyCalculatedHourlyWage = document.getElementById('historyCalculatedHourlyWage'); // Get new element reference
             winLossChartCanvas = document.getElementById('winLossChart');
             
+            // Authentication elements
+            authView = document.getElementById('authView');
+            mainAppView = document.getElementById('mainAppView');
+            authEmailInput = document.getElementById('authEmail');
+            authPasswordInput = document.getElementById('authPassword');
+            registerBtn = document.getElementById('registerBtn');
+            loginBtn = document.getElementById('loginBtn');
+            logoutBtn = document.getElementById('logoutBtn');
+            authMessage = document.getElementById('authMessage');
 
 
             // Set default values for time fields to current time on page load
@@ -2025,7 +2156,7 @@
             editSessionCancelBtn.addEventListener('click', cancelEditSession);
 
             // Initial page display
-            showPage('sessionTracker');
+            showPage('sessionTracker'); // Default to session tracker view when logged in
             sessionTrackerNavBtn.addEventListener('click', () => showPage('sessionTracker'));
             historyAndGraphsNavBtn.addEventListener('click', () => showPage('historyAndGraphs')); // New nav button listener
             settingsNavBtn.addEventListener('click', () => showPage('settings'));
@@ -2065,6 +2196,11 @@
             if (nextPeriodBtn) {
                 nextPeriodBtn.addEventListener('click', () => navigatePeriod('next'));
             }
+
+            // Authentication event listeners
+            registerBtn.addEventListener('click', registerUser);
+            loginBtn.addEventListener('click', loginUser);
+            logoutBtn.addEventListener('click', logoutUser);
         });
 
     </script>
